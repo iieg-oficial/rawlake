@@ -1,0 +1,36 @@
+[project]
+name = "rawlake"
+version = "0.1.0"
+description = "Data lake system for raw asset management"
+requires-python = ">=3.11"
+dependencies = [
+    "prefect>=3.0.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "psycopg2-binary>=2.9.0",
+    "typer>=0.12.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0.0",
+]
+
+[project.scripts]
+rawlake = "rawlake.cli.app:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rawlake"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
