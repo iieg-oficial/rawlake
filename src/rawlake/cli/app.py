@@ -1,12 +1,19 @@
-import typer
+from __future__ import annotations
 
-app = typer.Typer(name="rawlake", help="RawLake data lake CLI")
+import click
 
 
-@app.command()
+@click.group()
+def cli():
+    """RawLake data lake CLI."""
+    pass
+
+
+@cli.command()
 def version():
-    typer.echo("rawlake 0.1.0")
+    """Show rawlake version."""
+    click.echo("rawlake 0.1.0")
 
 
 if __name__ == "__main__":
-    app()
+    cli()
