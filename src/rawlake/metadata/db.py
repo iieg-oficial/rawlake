@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator
@@ -9,18 +8,16 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from rawlake.config import get_config
 from rawlake.metadata.models import Base
 
 env_path = Path(__file__).parent.parent.parent.parent / ".env"
 if env_path.exists():
     load_dotenv(env_path)
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://rawlake:rawlake@localhost:5432/rawlake",
-)
+config = get_config()
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(config.database_url, echo=False)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 

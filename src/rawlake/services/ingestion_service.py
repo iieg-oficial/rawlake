@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -9,6 +8,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
+from rawlake.config import get_config
 from rawlake.metadata.db import get_db_session
 
 env_path = Path(__file__).parent.parent.parent.parent / ".env"
@@ -145,10 +145,7 @@ class IngestionService:
                 product.id, source.id, period_label
             )
 
-            storage_root = os.getenv(
-                "RAWLAKE_LOCAL_ROOT",
-                "/mnt/datalake",
-            )
+            storage_root = get_config().RAWLAKE_LOCAL_ROOT
 
             storage_path = self._storage.generate_version_path(
                 root=storage_root,
