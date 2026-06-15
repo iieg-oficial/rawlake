@@ -1,0 +1,10 @@
+sources:
+  imaief_mensual:
+    product_key: inegi-imaief
+    source_key: imaief_mensual
+    name: "IMAIEF Mensual CSV"
+    url: "https://www.inegi.org.mx/contenidos/programas/aief/2018/datosabiertos/conjunto_de_datos_imaief_mensual_csv.zip"
+    extractor_type: http_zip
+    extract_pattern: "*.csv"
+    period_type: monthly
+    expected_file_types: ["csv", "zip"]

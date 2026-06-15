@@ -57,8 +57,24 @@ def sources():
 
 @sources.command("list")
 @click.option("--product", help="Filter by product key")
-def sources_list(product):
-    """List all sources, optionally filtered by product."""
+@click.option("--type", "source_type", help="Filter by extractor type (e.g., http_zip)")
+def sources_list(product, source_type):
+    """List all sources, optionally filtered by product or extractor type."""
+    from rawlake.extractors.base import ExtractorFactory
+
+    if source_type:
+        sources_dict = ExtractorFactory.list_sources(extractor_type=source_type)
+        if not sources_dict:
+            click.echo(f"No sources found with type: {source_type}")
+            return
+        click.echo(f"Sources with type '{source_type}':")
+        for key, config in sources_dict.items():
+            click.echo(f"  {key}: {config.name}")
+            click.echo(f"    Product: {config.product_key}")
+            click.echo(f"    URL: {config.url}")
+            click.echo(f"    Pattern: {config.extract_pattern}")
+        return
+
     with get_db_session() as session:
         repo = Repository(session)
         source_list = repo.list_sources(product_key=product)
@@ -176,6 +192,86 @@ def register(product, source, period, file_path, mode, actor, source_url, notes)
     click.echo(f"    Version: {asset.version_number}")
     click.echo(f"    Hash: {asset.checksum_sha256}")
     click.echo(f"    Path: {asset.storage_path}")
+
+
+@cli.command()
+@click.option("--source", required=True, help="Source key (e.g., imaief_mensual)")
+@click.option("--period", required=True, help="Period label (e.g., 2018-01)")
+@click.option("--product", help="Product key (overrides config if provided)")
+@click.option("--dry-run", is_flag=True, help="Show what would be done without executing")
+def extract(source, period, product, dry_run):
+    """Extract data from an HTTP source and register it in the datalake."""
+    from rawlake.config import get_config
+    from rawlake.extractors.base import ExtractorFactory
+    from rawlake.utils import Logger
+
+    log = Logger.get(__name__)
+
+    try:
+        config = ExtractorFactory.get_source_config(source)
+    except ValueError as e:
+        click.echo(f"Error: {e}", err=True)
+        return
+
+    effective_product = product or config.product_key
+
+    click.echo(f"⏳ Extracting {source} for period {period}...")
+
+    if dry_run:
+        click.echo(f"  Product: {effective_product}")
+        click.echo(f"  URL: {config.url}")
+        click.echo(f"  Extract pattern: {config.extract_pattern}")
+        click.echo(f"  Dry run - no files downloaded or registered")
+        return
+
+    try:
+        extractor = ExtractorFactory.get_extractor(source)
+    except ValueError as e:
+        click.echo(f"Error: {e}", err=True)
+        return
+
+    try:
+        output_dir = get_config().RAWLAKE_LOCAL_ROOT
+        extracted_files = extractor.extract(period, output_dir)
+
+        if not extracted_files:
+            click.echo("No files extracted", err=True)
+            return
+
+        click.echo(f"✅ Downloaded and extracted {len(extracted_files)} file(s)")
+
+        for extracted_file in extracted_files:
+            click.echo(f"  📄 {extracted_file}")
+
+            ingestion_mode = IngestionMode.AUTOMATED
+            trigger_type = TriggerType.SCHEDULED
+
+            service = IngestionService()
+            result = service.register_raw_asset(
+                product_key=effective_product,
+                source_key=source,
+                period_label=period,
+                file_path=str(extracted_file),
+                ingestion_mode=ingestion_mode,
+                trigger_type=trigger_type,
+                source_url=config.url,
+            )
+
+            if not result.success:
+                click.echo(f"  ❌ Registration failed: {result.error_message}", err=True)
+                continue
+
+            if result.is_duplicate:
+                click.echo(f"  ⚠️  Duplicate detected - version {result.asset.version_number}")
+            else:
+                click.echo(f"  ✅ Registered: version {result.asset.version_number}")
+
+        click.echo("✅ Extraction and registration complete!")
+
+    except Exception as e:
+        click.echo(f"Error during extraction: {e}", err=True)
+        log.error(f"Extraction failed for {source}/{period}: {e}")
+        raise
 
 
 if __name__ == "__main__":
