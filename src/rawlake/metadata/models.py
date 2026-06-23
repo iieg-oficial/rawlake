@@ -99,17 +99,11 @@ class Source(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     source_type: Mapped[SourceType] = mapped_column(SQLEnum(SourceType), nullable=False)
-    ingestion_mode: Mapped[IngestionMode] = mapped_column(
-        SQLEnum(IngestionMode), nullable=False
-    )
+    ingestion_mode: Mapped[IngestionMode] = mapped_column(SQLEnum(IngestionMode), nullable=False)
     manual_upload_allowed: Mapped[bool] = mapped_column(Boolean, default=False)
     requires_manifest: Mapped[bool] = mapped_column(Boolean, default=True)
-    expected_file_types: Mapped[Optional[list[str]]] = mapped_column(
-        ARRAY(String), nullable=True
-    )
-    period_type: Mapped[Optional[PeriodType]] = mapped_column(
-        SQLEnum(PeriodType), nullable=True
-    )
+    expected_file_types: Mapped[Optional[list[str]]] = mapped_column(ARRAY(String), nullable=True)
+    period_type: Mapped[Optional[PeriodType]] = mapped_column(SQLEnum(PeriodType), nullable=True)
     schedule: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -117,9 +111,7 @@ class Source(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    __table_args__ = (
-        Index("idx_sources_product_key", "product_id", "source_key", unique=True),
-    )
+    __table_args__ = (Index("idx_sources_product_key", "product_id", "source_key", unique=True),)
 
     product: Mapped[Product] = relationship("Product", back_populates="sources")
 
@@ -133,9 +125,7 @@ class IngestionRun(Base):
     run_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     period_label: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[RunStatus] = mapped_column(SQLEnum(RunStatus), nullable=False)
-    ingestion_mode: Mapped[IngestionMode] = mapped_column(
-        SQLEnum(IngestionMode), nullable=False
-    )
+    ingestion_mode: Mapped[IngestionMode] = mapped_column(SQLEnum(IngestionMode), nullable=False)
     trigger_type: Mapped[TriggerType] = mapped_column(SQLEnum(TriggerType), nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
@@ -168,9 +158,7 @@ class RawAsset(Base):
     checksum_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
     source_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     uploaded_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    ingestion_mode: Mapped[IngestionMode] = mapped_column(
-        SQLEnum(IngestionMode), nullable=False
-    )
+    ingestion_mode: Mapped[IngestionMode] = mapped_column(SQLEnum(IngestionMode), nullable=False)
     is_latest_for_period: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
@@ -208,12 +196,8 @@ class ManualSubmission(Base):
     __tablename__ = "manual_submissions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    submission_id: Mapped[str] = mapped_column(
-        String(100), unique=True, nullable=False
-    )
-    product_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("products.id"), nullable=True
-    )
+    submission_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    product_id: Mapped[Optional[int]] = mapped_column(ForeignKey("products.id"), nullable=True)
     source_id: Mapped[Optional[int]] = mapped_column(ForeignKey("sources.id"), nullable=True)
     period_label: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     dropzone_path: Mapped[str] = mapped_column(Text, nullable=False)
@@ -221,9 +205,7 @@ class ManualSubmission(Base):
     original_file_name: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     submitted_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     submitted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    status: Mapped[SubmissionStatus] = mapped_column(
-        SQLEnum(SubmissionStatus), nullable=False
-    )
+    status: Mapped[SubmissionStatus] = mapped_column(SQLEnum(SubmissionStatus), nullable=False)
     review_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     processed_run_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("ingestion_runs.id"), nullable=True

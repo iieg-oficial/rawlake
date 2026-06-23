@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-from datetime import datetime
 from pathlib import Path
 
 import click
@@ -67,7 +65,9 @@ def sources_list(product):
             return
         for s in source_list:
             status = "active" if s.is_active else "inactive"
-            click.echo(f"[{status}] {s.source_key} - {s.name} (type: {s.source_type.value}, mode: {s.ingestion_mode.value})")
+            click.echo(
+                f"[{status}] {s.source_key} - {s.name} (type: {s.source_type.value}, mode: {s.ingestion_mode.value})"
+            )
 
 
 @cli.group()
@@ -88,8 +88,16 @@ def runs_list(product, limit):
             click.echo("No runs found.")
             return
         for r in run_list:
-            status_icon = {"running": "🔄", "success": "✅", "failed": "❌", "duplicated": "📋", "rejected": "🚫"}.get(r.status.value, "❓")
-            click.echo(f"{status_icon} {r.run_id} | {r.status.value} | {r.period_label} | {r.created_at.strftime('%Y-%m-%d %H:%M')}")
+            status_icon = {
+                "running": "🔄",
+                "success": "✅",
+                "failed": "❌",
+                "duplicated": "📋",
+                "rejected": "🚫",
+            }.get(r.status.value, "❓")
+            click.echo(
+                f"{status_icon} {r.run_id} | {r.status.value} | {r.period_label} | {r.created_at.strftime('%Y-%m-%d %H:%M')}"
+            )
 
 
 @cli.group()
@@ -130,7 +138,9 @@ def assets_latest(product, source, period):
 @click.option("--source", required=True, help="Source key")
 @click.option("--period", required=True, help="Period label (e.g., 2026-01)")
 @click.option("--file", "file_path", required=True, help="Path to the file to register")
-@click.option("--mode", default="manual", type=click.Choice(["manual", "automated"]), help="Ingestion mode")
+@click.option(
+    "--mode", default="manual", type=click.Choice(["manual", "automated"]), help="Ingestion mode"
+)
 @click.option("--actor", help="Who is initiating this registration")
 @click.option("--source-url", help="Original URL of the file")
 @click.option("--notes", help="Additional notes")
