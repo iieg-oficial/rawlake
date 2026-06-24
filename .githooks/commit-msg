@@ -22,3 +22,8 @@ else
     echo "Your message: $commit_msg"
     exit 1
 fi
+<<<<<<< Updated upstream
+=======
+#
+
+>>>>>>> Stashed changes
