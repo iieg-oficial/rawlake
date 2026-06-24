@@ -76,8 +76,8 @@ def test_build_version_path():
     ts = datetime(2024, 1, 15, 10, 30, 0)
     path = build_version_path(
         root="/mnt/datalake",
-        product_key="test_product",
-        source_key="test_source",
+        dataset_key="test_dataset",
+        distribucion_key="test_distribucion",
         period_label="2024-01",
         version_timestamp=ts,
         file_extension="csv",
@@ -85,8 +85,8 @@ def test_build_version_path():
 
     assert path == (
         "/mnt/datalake/"
-        "producto=test_product/"
-        "fuente=test_source/"
+        "dataset=test_dataset/"
+        "distribucion=test_distribucion/"
         "periodo=2024-01/"
         "version=2024-01-15T10-30-00/"
         "original.csv"
