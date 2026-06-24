@@ -1,0 +1,24 @@
+#!/bin/sh
+
+commit_msg_file="$1"
+commit_msg=$(grep -v "^#" "$commit_msg_file" | head -1)
+
+types="feat|fix|refactor|perf|docs|test|build|deps|ci|style|chore"
+scopes="cli|config|metadata|services|storage|extractors|schemas|utils|flows|migrations|infra"
+
+pattern="^($types)(\(($scopes)\))?!?: [a-z].*$"
+
+if echo "$commit_msg" | grep -qE "$pattern"; then
+    exit 0
+else
+    echo "ERROR: Invalid commit message format"
+    echo ""
+    echo "Expected: <type>(<scope>): <description>"
+    echo "      or: <type>: <description>"
+    echo ""
+    echo "Valid types: $types"
+    echo "Valid scopes: $scopes"
+    echo ""
+    echo "Your message: $commit_msg"
+    exit 1
+fi

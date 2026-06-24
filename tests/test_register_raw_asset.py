@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import os
 import tempfile
-from pathlib import Path
 
-import pytest
 
 from rawlake.services.checksum_service import ChecksumService
 from rawlake.services.versioning_service import VersioningService
@@ -31,7 +29,10 @@ def test_checksum_service_file_extension():
 
 def test_checksum_service_mime_type():
     assert ChecksumService.guess_mime_type("file.csv") == "text/csv"
-    assert ChecksumService.guess_mime_type("file.xlsx") == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    assert (
+        ChecksumService.guess_mime_type("file.xlsx")
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     assert ChecksumService.guess_mime_type("file.json") == "application/json"
     assert ChecksumService.guess_mime_type("file.unknown") == "application/octet-stream"
 
@@ -62,6 +63,7 @@ def test_versioning_service_generates_submission_id():
 
 def test_versioning_service_format_timestamp():
     from datetime import datetime
+
     ts = datetime(2024, 1, 15, 10, 30, 0)
     formatted = VersioningService.format_version_timestamp(ts)
     assert formatted == "2024-01-15T10-30-00"

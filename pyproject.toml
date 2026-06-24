@@ -16,6 +16,9 @@ dependencies = [
     "pytest>=9.0.3",
 ]
 
+[dependency-groups]
+dev = ["pre-commit>=4.0.0"]
+
 [project.scripts]
 rawlake = "rawlake.cli.app:cli"
 

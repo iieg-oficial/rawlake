@@ -29,9 +29,7 @@ class Repository:
         stmt = select(Product).where(Product.product_key == product_key)
         return self._session.scalars(stmt).first()
 
-    def get_source_by_key(
-        self, product_id: int, source_key: str
-    ) -> Optional[Source]:
+    def get_source_by_key(self, product_id: int, source_key: str) -> Optional[Source]:
         stmt = select(Source).where(
             Source.product_id == product_id, Source.source_key == source_key
         )
@@ -269,9 +267,7 @@ class Repository:
             product = self.get_product_by_key(product_key)
             if not product:
                 return []
-            stmt = select(Source).where(Source.product_id == product.id).order_by(
-                Source.source_key
-            )
+            stmt = select(Source).where(Source.product_id == product.id).order_by(Source.source_key)
         else:
             stmt = select(Source).order_by(Source.source_key)
         return list(self._session.scalars(stmt).all())
@@ -292,9 +288,7 @@ class Repository:
                 .limit(limit)
             )
         else:
-            stmt = select(IngestionRun).order_by(
-                IngestionRun.created_at.desc()
-            ).limit(limit)
+            stmt = select(IngestionRun).order_by(IngestionRun.created_at.desc()).limit(limit)
         return list(self._session.scalars(stmt).all())
 
     def create_manual_submission(
@@ -332,9 +326,7 @@ class Repository:
         processed_run_id: Optional[int] = None,
     ) -> Optional[ManualSubmission]:
         submission = self._session.scalars(
-            select(ManualSubmission).where(
-                ManualSubmission.submission_id == submission_id
-            )
+            select(ManualSubmission).where(ManualSubmission.submission_id == submission_id)
         ).first()
         if not submission:
             return None

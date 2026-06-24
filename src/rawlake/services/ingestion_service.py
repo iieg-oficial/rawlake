@@ -17,7 +17,6 @@ if env_path.exists():
 
 from rawlake.metadata.models import (
     IngestionMode,
-    RawAsset,
     TriggerType,
 )
 from rawlake.metadata.repository import Repository
@@ -112,9 +111,7 @@ class IngestionService:
             mime_type = self._checksum.guess_mime_type(file_path)
             original_name = Path(file_path).name
 
-            duplicate = repo.find_duplicate_by_hash(
-                product.id, source.id, period_label, checksum
-            )
+            duplicate = repo.find_duplicate_by_hash(product.id, source.id, period_label, checksum)
             if duplicate:
                 run_id = self._versioning.generate_run_id()
                 run = repo.create_run(
@@ -141,9 +138,7 @@ class IngestionService:
                 )
 
             version_timestamp = self._versioning.generate_version_timestamp()
-            version_number = repo.get_next_version_number(
-                product.id, source.id, period_label
-            )
+            version_number = repo.get_next_version_number(product.id, source.id, period_label)
 
             storage_root = get_config().RAWLAKE_LOCAL_ROOT
 
@@ -188,9 +183,7 @@ class IngestionService:
                 ingestion_mode=ingestion_mode,
             )
 
-            repo.update_old_assets_not_latest(
-                product.id, source.id, period_label, asset.id
-            )
+            repo.update_old_assets_not_latest(product.id, source.id, period_label, asset.id)
 
             self._write_metadata_json(
                 storage_path=storage_path,

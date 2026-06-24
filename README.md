@@ -37,17 +37,14 @@ rawlake/
 ## Setup
 
 ```bash
-# Install dependencies
-just install
+# Install dependencies and pre-commit hooks
+just setup
 
 # Start local PostgreSQL
 just db-up
 
 # Run migrations
 just migrate
-
-# Install pre-commit hooks
-uv run pre-commit install
 ```
 
 ## CLI
@@ -63,6 +60,7 @@ Common tasks available via `just`:
 
 | Command | Description |
 |---------|-------------|
+| `just setup` | Install dependencies and pre-commit hooks |
 | `just install` | Install dependencies with uv sync |
 | `just lint` | Run ruff linter |
 | `just format` | Format code with ruff |
