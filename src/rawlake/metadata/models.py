@@ -59,6 +59,14 @@ class TriggerType(str, enum.Enum):
     RETRY = "retry"
 
 
+class LocatorType(str, enum.Enum):
+    ROOT = "root"
+    SHEET = "sheet"
+    MEMBER = "member"
+    JSON_PATH = "json_path"
+    XPATH = "xpath"
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -110,6 +118,9 @@ class Distribucion(Base):
     )
     ingestions: Mapped[list[Ingestion]] = relationship("Ingestion", back_populates="distribucion")
     archivos: Mapped[list[Archivo]] = relationship("Archivo", back_populates="distribucion")
+    recurso_datos: Mapped[list[RecursoDatos]] = relationship(
+        "RecursoDatos", back_populates="distribucion"
+    )
 
 
 class IngestionConfig(Base):
@@ -161,6 +172,32 @@ class Ingestion(Base):
     archivos: Mapped[list[Archivo]] = relationship("Archivo", back_populates="ingestion")
 
 
+class RecursoDatos(Base):
+    __tablename__ = "recurso_datos"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    distribucion_id: Mapped[int] = mapped_column(ForeignKey("distribuciones.id"), nullable=False)
+    recurso_key: Mapped[str] = mapped_column(String(100), nullable=False)
+    nombre: Mapped[str] = mapped_column(Text, nullable=False)
+    descripcion: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    activo: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    __table_args__ = (
+        Index("idx_recurso_datos_distribucion_key", "distribucion_id", "recurso_key", unique=True),
+    )
+
+    distribucion: Mapped[Distribucion] = relationship(
+        "Distribucion", back_populates="recurso_datos"
+    )
+    archivo_recursos: Mapped[list[ArchivoRecurso]] = relationship(
+        "ArchivoRecurso", back_populates="recurso_datos"
+    )
+
+
 class Archivo(Base):
     __tablename__ = "archivos"
 
@@ -204,3 +241,31 @@ class Archivo(Base):
 
     ingestion: Mapped[Ingestion] = relationship("Ingestion", back_populates="archivos")
     distribucion: Mapped[Distribucion] = relationship("Distribucion", back_populates="archivos")
+    archivo_recursos: Mapped[list[ArchivoRecurso]] = relationship(
+        "ArchivoRecurso", back_populates="archivo"
+    )
+
+
+class ArchivoRecurso(Base):
+    __tablename__ = "archivo_recurso"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    archivo_id: Mapped[int] = mapped_column(ForeignKey("archivos.id"), nullable=False)
+    recurso_datos_id: Mapped[int] = mapped_column(ForeignKey("recurso_datos.id"), nullable=False)
+    locator_type: Mapped[LocatorType] = mapped_column(SQLEnum(LocatorType), nullable=False)
+    locator_value: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        Index(
+            "idx_archivo_recurso_unique",
+            "archivo_id",
+            "recurso_datos_id",
+            unique=True,
+        ),
+    )
+
+    archivo: Mapped[Archivo] = relationship("Archivo", back_populates="archivo_recursos")
+    recurso_datos: Mapped[RecursoDatos] = relationship(
+        "RecursoDatos", back_populates="archivo_recursos"
+    )

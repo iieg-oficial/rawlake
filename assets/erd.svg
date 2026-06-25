@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1172.0" height="865.0" style="font-family: system-ui, -apple-system, sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" width="1450.0" height="1121.0" style="font-family: system-ui, -apple-system, sans-serif;">
   <defs>
     <pattern id="erd-dots" width="24" height="24" patternUnits="userSpaceOnUse">
       <circle cx="1" cy="1" r="0.8" fill="#d1d5db" />
@@ -13,43 +13,85 @@
   </defs>
   <rect width="100%" height="100%" fill="#f9fafb" />
   <rect width="100%" height="100%" fill="url(#erd-dots)" />
+  <g class="erd-rel" data-from="archivos" data-to="archivo_recurso">
+    <path d="M 1112.0 389.0 L 1132.0 389.0 Q 1142.0 389.0 1142.0 399.0 L 1142.0 536.5 Q 1142.0 546.5 1152.0 546.5 L 1172.0 546.5" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 1112.0 389.0 L 1132.0 389.0 Q 1142.0 389.0 1142.0 399.0 L 1142.0 536.5 Q 1142.0 546.5 1152.0 546.5 L 1172.0 546.5" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="1132.0" y="377.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text x="1152.0" y="534.5" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+  </g>
+  <g class="erd-rel" data-from="recurso_datos" data-to="archivo_recurso">
+    <path d="M 834.0 897.0 L 993.0 897.0 Q 1003.0 897.0 1003.0 887.0 L 1003.0 577.5 Q 1003.0 567.5 1013.0 567.5 L 1172.0 567.5" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 834.0 897.0 L 993.0 897.0 Q 1003.0 897.0 1003.0 887.0 L 1003.0 577.5 Q 1003.0 567.5 1013.0 567.5 L 1172.0 567.5" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="854.0" y="885.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text x="1152.0" y="555.5" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+  </g>
   <g class="erd-rel" data-from="ingestions" data-to="archivos">
-    <path d="M 834.0 410.0 L 854.0 410.0 Q 864.0 410.0 864.0 400.0 L 864.0 292.0 Q 864.0 282.0 874.0 282.0 L 894.0 282.0" fill="none" stroke="transparent" stroke-width="18" />
-    <path class="erd-edge" d="M 834.0 410.0 L 854.0 410.0 Q 864.0 410.0 864.0 400.0 L 864.0 292.0 Q 864.0 282.0 874.0 282.0 L 894.0 282.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <path d="M 834.0 410.0 L 894.0 410.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 834.0 410.0 L 894.0 410.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
     <text x="854.0" y="398.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
-    <text x="874.0" y="270.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+    <text x="874.0" y="398.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
   </g>
   <g class="erd-rel" data-from="distribuciones" data-to="archivos">
-    <path d="M 556.0 366.0 L 715.0 366.0 Q 725.0 366.0 725.0 356.0 L 725.0 313.0 Q 725.0 303.0 735.0 303.0 L 894.0 303.0" fill="none" stroke="transparent" stroke-width="18" />
-    <path class="erd-edge" d="M 556.0 366.0 L 715.0 366.0 Q 725.0 366.0 725.0 356.0 L 725.0 313.0 Q 725.0 303.0 735.0 303.0 L 894.0 303.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
-    <text x="576.0" y="354.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
-    <text x="874.0" y="291.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+    <path d="M 556.0 494.0 L 715.0 494.0 Q 725.0 494.0 725.0 484.0 L 725.0 441.0 Q 725.0 431.0 735.0 431.0 L 894.0 431.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 556.0 494.0 L 715.0 494.0 Q 725.0 494.0 725.0 484.0 L 725.0 441.0 Q 725.0 431.0 735.0 431.0 L 894.0 431.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="576.0" y="482.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text x="874.0" y="419.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
   </g>
   <g class="erd-rel" data-from="datasets" data-to="distribuciones">
-    <path d="M 278.0 355.5 L 298.0 355.5 Q 308.0 355.5 308.0 365.5 L 308.0 377.0 Q 308.0 387.0 318.0 387.0 L 338.0 387.0" fill="none" stroke="transparent" stroke-width="18" />
-    <path class="erd-edge" d="M 278.0 355.5 L 298.0 355.5 Q 308.0 355.5 308.0 365.5 L 308.0 377.0 Q 308.0 387.0 318.0 387.0 L 338.0 387.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
-    <text x="298.0" y="343.5" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
-    <text x="318.0" y="375.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+    <path d="M 278.0 483.5 L 298.0 483.5 Q 308.0 483.5 308.0 493.5 L 308.0 505.0 Q 308.0 515.0 318.0 515.0 L 338.0 515.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 278.0 483.5 L 298.0 483.5 Q 308.0 483.5 308.0 493.5 L 308.0 505.0 Q 308.0 515.0 318.0 515.0 L 338.0 515.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="298.0" y="471.5" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text x="318.0" y="503.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
   </g>
   <g class="erd-rel" data-from="distribuciones" data-to="ingestion_configs">
-    <path d="M 556.0 366.0 L 576.0 366.0 Q 586.0 366.0 586.0 356.0 L 586.0 143.0 Q 586.0 133.0 596.0 133.0 L 616.0 133.0" fill="none" stroke="transparent" stroke-width="18" />
-    <path class="erd-edge" d="M 556.0 366.0 L 576.0 366.0 Q 586.0 366.0 586.0 356.0 L 586.0 143.0 Q 586.0 133.0 596.0 133.0 L 616.0 133.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
-    <text x="576.0" y="354.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
-    <text x="596.0" y="121.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+    <path d="M 556.0 494.0 L 848.0 494.0 Q 858.0 494.0 858.0 484.0 L 858.0 143.0 Q 858.0 133.0 848.0 133.0 L 834.0 133.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 556.0 494.0 L 848.0 494.0 Q 858.0 494.0 858.0 484.0 L 858.0 143.0 Q 858.0 133.0 848.0 133.0 L 834.0 133.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="576.0" y="482.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text x="854.0" y="121.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
   </g>
   <g class="erd-rel" data-from="datasets" data-to="ingestions">
-    <path d="M 278.0 355.5 L 437.0 355.5 Q 447.0 355.5 447.0 365.5 L 447.0 442.0 Q 447.0 452.0 457.0 452.0 L 616.0 452.0" fill="none" stroke="transparent" stroke-width="18" />
-    <path class="erd-edge" d="M 278.0 355.5 L 437.0 355.5 Q 447.0 355.5 447.0 365.5 L 447.0 442.0 Q 447.0 452.0 457.0 452.0 L 616.0 452.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
-    <text x="298.0" y="343.5" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <path d="M 278.0 483.5 L 437.0 483.5 Q 447.0 483.5 447.0 473.5 L 447.0 462.0 Q 447.0 452.0 457.0 452.0 L 616.0 452.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 278.0 483.5 L 437.0 483.5 Q 447.0 483.5 447.0 473.5 L 447.0 462.0 Q 447.0 452.0 457.0 452.0 L 616.0 452.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="298.0" y="471.5" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
     <text x="596.0" y="440.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
   </g>
   <g class="erd-rel" data-from="distribuciones" data-to="ingestions">
-    <path d="M 556.0 366.0 L 576.0 366.0 Q 586.0 366.0 586.0 376.0 L 586.0 463.0 Q 586.0 473.0 596.0 473.0 L 616.0 473.0" fill="none" stroke="transparent" stroke-width="18" />
-    <path class="erd-edge" d="M 556.0 366.0 L 576.0 366.0 Q 586.0 366.0 586.0 376.0 L 586.0 463.0 Q 586.0 473.0 596.0 473.0 L 616.0 473.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
-    <text x="576.0" y="354.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <path d="M 556.0 494.0 L 576.0 494.0 Q 586.0 494.0 586.0 484.0 L 586.0 483.0 Q 586.0 473.0 596.0 473.0 L 616.0 473.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 556.0 494.0 L 576.0 494.0 Q 586.0 494.0 586.0 484.0 L 586.0 483.0 Q 586.0 473.0 596.0 473.0 L 616.0 473.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="576.0" y="482.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
     <text x="596.0" y="461.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
   </g>
-  <g class="erd-node" data-table="archivos" transform="translate(894.0, 209.0)" style="cursor: grab;">
+  <g class="erd-rel" data-from="distribuciones" data-to="recurso_datos">
+    <path d="M 556.0 494.0 L 848.0 494.0 Q 858.0 494.0 858.0 504.0 L 858.0 908.0 Q 858.0 918.0 848.0 918.0 L 834.0 918.0" fill="none" stroke="transparent" stroke-width="18" />
+    <path class="erd-edge" d="M 556.0 494.0 L 848.0 494.0 Q 858.0 494.0 858.0 504.0 L 858.0 908.0 Q 858.0 918.0 848.0 918.0 L 834.0 918.0" fill="none" stroke="#c4cad4" stroke-width="1.5" marker-end="url(#arr)" />
+    <text x="576.0" y="482.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text x="854.0" y="906.0" font-size="11" font-family="monospace" fill="#c4cad4" text-anchor="middle" dominant-baseline="middle">N</text>
+  </g>
+  <g class="erd-node" data-table="archivo_recurso" transform="translate(1172.0, 473.5)" style="cursor: grab;">
+    <rect x="3" y="3" rx="7" width="218" height="174" fill="rgba(0,0,0,0.06)" />
+    <rect class="erd-card" rx="7" width="218" height="174" fill="#ffffff" stroke="#dde1e8" stroke-width="1" />
+    <rect rx="7" width="218" height="36" fill="#5C2472" />
+    <rect y="29" width="218" height="7" fill="#5C2472" />
+    <text x="12" y="19.0" font-size="13" font-weight="600" fill="white" dominant-baseline="middle" style="letter-spacing: 0.01em;">ArchivoRecurso</text>
+    <text x="10" y="53.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#5C2472" font-weight="700" dominant-baseline="middle">id</text>
+    <text x="210" y="53.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#5C2472" text-anchor="end" dominant-baseline="middle" opacity="0.9">PK</text>
+    <line x1="10" y1="63" x2="208" y2="63" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="74.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#c2410c" font-weight="400" dominant-baseline="middle">archivo_id</text>
+    <text x="210" y="74.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#c2410c" text-anchor="end" dominant-baseline="middle" opacity="0.9">FK</text>
+    <line x1="10" y1="84" x2="208" y2="84" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="95.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#c2410c" font-weight="400" dominant-baseline="middle">recurso_datos_id</text>
+    <text x="210" y="95.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#c2410c" text-anchor="end" dominant-baseline="middle" opacity="0.9">FK</text>
+    <line x1="10" y1="105" x2="208" y2="105" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="116.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">locator_type</text>
+    <text x="210" y="116.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#0e7490" text-anchor="end" dominant-baseline="middle" opacity="0.9">enum</text>
+    <line x1="10" y1="126" x2="208" y2="126" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="137.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">locator_value</text>
+    <text x="210" y="137.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#9ca3af" text-anchor="end" dominant-baseline="middle" opacity="0.9">text?</text>
+    <line x1="10" y1="147" x2="208" y2="147" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="158.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">created_at</text>
+    <text x="210" y="158.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#1d4ed8" text-anchor="end" dominant-baseline="middle" opacity="0.9">datetime</text>
+  </g>
+  <g class="erd-node" data-table="archivos" transform="translate(894.0, 337.0)" style="cursor: grab;">
     <rect x="3" y="3" rx="7" width="218" height="447" fill="rgba(0,0,0,0.06)" />
     <rect class="erd-card" rx="7" width="218" height="447" fill="#ffffff" stroke="#dde1e8" stroke-width="1" />
     <rect rx="7" width="218" height="36" fill="#5C2472" />
@@ -112,7 +154,7 @@
     <text x="10" y="431.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">created_at</text>
     <text x="210" y="431.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#1d4ed8" text-anchor="end" dominant-baseline="middle" opacity="0.9">datetime</text>
   </g>
-  <g class="erd-node" data-table="datasets" transform="translate(60.0, 303.5)" style="cursor: grab;">
+  <g class="erd-node" data-table="datasets" transform="translate(60.0, 431.5)" style="cursor: grab;">
     <rect x="3" y="3" rx="7" width="218" height="258" fill="rgba(0,0,0,0.06)" />
     <rect class="erd-card" rx="7" width="218" height="258" fill="#ffffff" stroke="#dde1e8" stroke-width="1" />
     <rect rx="7" width="218" height="36" fill="#5C2472" />
@@ -148,7 +190,7 @@
     <text x="10" y="242.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">updated_at</text>
     <text x="210" y="242.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#1d4ed8" text-anchor="end" dominant-baseline="middle" opacity="0.9">datetime</text>
   </g>
-  <g class="erd-node" data-table="distribuciones" transform="translate(338.0, 314.0)" style="cursor: grab;">
+  <g class="erd-node" data-table="distribuciones" transform="translate(338.0, 442.0)" style="cursor: grab;">
     <rect x="3" y="3" rx="7" width="218" height="237" fill="rgba(0,0,0,0.06)" />
     <rect class="erd-card" rx="7" width="218" height="237" fill="#ffffff" stroke="#dde1e8" stroke-width="1" />
     <rect rx="7" width="218" height="36" fill="#5C2472" />
@@ -279,5 +321,35 @@
     <line x1="10" y1="420" x2="208" y2="420" stroke="#f0f2f5" stroke-width="1" />
     <text x="10" y="431.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">created_at</text>
     <text x="210" y="431.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#1d4ed8" text-anchor="end" dominant-baseline="middle" opacity="0.9">datetime</text>
+  </g>
+  <g class="erd-node" data-table="recurso_datos" transform="translate(616.0, 845.0)" style="cursor: grab;">
+    <rect x="3" y="3" rx="7" width="218" height="216" fill="rgba(0,0,0,0.06)" />
+    <rect class="erd-card" rx="7" width="218" height="216" fill="#ffffff" stroke="#dde1e8" stroke-width="1" />
+    <rect rx="7" width="218" height="36" fill="#5C2472" />
+    <rect y="29" width="218" height="7" fill="#5C2472" />
+    <text x="12" y="19.0" font-size="13" font-weight="600" fill="white" dominant-baseline="middle" style="letter-spacing: 0.01em;">RecursoDatos</text>
+    <text x="10" y="53.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#5C2472" font-weight="700" dominant-baseline="middle">id</text>
+    <text x="210" y="53.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#5C2472" text-anchor="end" dominant-baseline="middle" opacity="0.9">PK</text>
+    <line x1="10" y1="63" x2="208" y2="63" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="74.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#c2410c" font-weight="400" dominant-baseline="middle">distribucion_id</text>
+    <text x="210" y="74.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#c2410c" text-anchor="end" dominant-baseline="middle" opacity="0.9">FK</text>
+    <line x1="10" y1="84" x2="208" y2="84" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="95.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">recurso_key</text>
+    <text x="210" y="95.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#6b7280" text-anchor="end" dominant-baseline="middle" opacity="0.9">string</text>
+    <line x1="10" y1="105" x2="208" y2="105" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="116.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">nombre</text>
+    <text x="210" y="116.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#9ca3af" text-anchor="end" dominant-baseline="middle" opacity="0.9">text</text>
+    <line x1="10" y1="126" x2="208" y2="126" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="137.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">descripcion</text>
+    <text x="210" y="137.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#9ca3af" text-anchor="end" dominant-baseline="middle" opacity="0.9">text?</text>
+    <line x1="10" y1="147" x2="208" y2="147" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="158.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">activo</text>
+    <text x="210" y="158.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#047857" text-anchor="end" dominant-baseline="middle" opacity="0.9">bool</text>
+    <line x1="10" y1="168" x2="208" y2="168" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="179.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">created_at</text>
+    <text x="210" y="179.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#1d4ed8" text-anchor="end" dominant-baseline="middle" opacity="0.9">datetime</text>
+    <line x1="10" y1="189" x2="208" y2="189" stroke="#f0f2f5" stroke-width="1" />
+    <text x="10" y="200.5" font-size="10" font-family="'Courier New', Courier, monospace" fill="#3d4552" font-weight="400" dominant-baseline="middle">updated_at</text>
+    <text x="210" y="200.5" font-size="9" font-family="'Courier New', Courier, monospace" fill="#1d4ed8" text-anchor="end" dominant-baseline="middle" opacity="0.9">datetime</text>
   </g>
 </svg>

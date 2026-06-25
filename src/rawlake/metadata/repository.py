@@ -8,12 +8,15 @@ from sqlalchemy.orm import Session
 
 from rawlake.metadata.models import (
     Archivo,
+    ArchivoRecurso,
     Dataset,
     Distribucion,
     Ingestion,
     IngestionConfig,
     IngestionMode,
+    LocatorType,
     PeriodType,
+    RecursoDatos,
     RunStatus,
     SourceType,
     TriggerType,
@@ -299,4 +302,73 @@ class Repository:
             )
         else:
             stmt = select(Ingestion).order_by(Ingestion.created_at.desc()).limit(limit)
+        return list(self._session.scalars(stmt).all())
+
+    def create_recurso_datos(
+        self,
+        distribucion_id: int,
+        recurso_key: str,
+        nombre: str,
+        descripcion: Optional[str] = None,
+        activo: bool = True,
+    ) -> RecursoDatos:
+        recurso = RecursoDatos(
+            distribucion_id=distribucion_id,
+            recurso_key=recurso_key,
+            nombre=nombre,
+            descripcion=descripcion,
+            activo=activo,
+        )
+        self._session.add(recurso)
+        self._session.flush()
+        return recurso
+
+    def get_recurso_datos_by_key(
+        self, distribucion_id: int, recurso_key: str
+    ) -> Optional[RecursoDatos]:
+        stmt = select(RecursoDatos).where(
+            RecursoDatos.distribucion_id == distribucion_id,
+            RecursoDatos.recurso_key == recurso_key,
+        )
+        return self._session.scalars(stmt).first()
+
+    def list_recurso_datos(self, distribucion_id: Optional[int] = None) -> list[RecursoDatos]:
+        if distribucion_id:
+            stmt = (
+                select(RecursoDatos)
+                .where(RecursoDatos.distribucion_id == distribucion_id)
+                .order_by(RecursoDatos.recurso_key)
+            )
+        else:
+            stmt = select(RecursoDatos).order_by(RecursoDatos.recurso_key)
+        return list(self._session.scalars(stmt).all())
+
+    def create_archivo_recurso(
+        self,
+        archivo_id: int,
+        recurso_datos_id: int,
+        locator_type: LocatorType,
+        locator_value: Optional[str] = None,
+    ) -> ArchivoRecurso:
+        archivo_recurso = ArchivoRecurso(
+            archivo_id=archivo_id,
+            recurso_datos_id=recurso_datos_id,
+            locator_type=locator_type,
+            locator_value=locator_value,
+        )
+        self._session.add(archivo_recurso)
+        self._session.flush()
+        return archivo_recurso
+
+    def get_archivo_recurso(
+        self, archivo_id: int, recurso_datos_id: int
+    ) -> Optional[ArchivoRecurso]:
+        stmt = select(ArchivoRecurso).where(
+            ArchivoRecurso.archivo_id == archivo_id,
+            ArchivoRecurso.recurso_datos_id == recurso_datos_id,
+        )
+        return self._session.scalars(stmt).first()
+
+    def list_archivo_recursos(self, archivo_id: int) -> list[ArchivoRecurso]:
+        stmt = select(ArchivoRecurso).where(ArchivoRecurso.archivo_id == archivo_id)
         return list(self._session.scalars(stmt).all())

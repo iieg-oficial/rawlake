@@ -105,6 +105,37 @@
 - `distribuciones` → `ingestion_configs` (1:1)
 - `distribuciones` → `ingestions` (1:N)
 - `distribuciones` → `archivos` (1:N)
+- `distribuciones` → `recurso_datos` (1:N)
 - `ingestions` → `archivos` (1:N)
+- `archivos` → `archivo_recurso` (1:N)
+- `recurso_datos` → `archivo_recurso` (1:N)
 
 > **Nota:** La relación `distribuciones` → `ingestion_configs` es técnicamente 1:1 (implementada con `uselist=False` en SQLAlchemy). ERDAlchemy no detecta esta cardinalidad y la muestra como 1:N en el diagrama, pero el modelo garantiza que cada distribución tenga como máximo una configuración de ingestión.
+
+## RecursoDatos
+
+Representa una unidad lógica de información publicada por una distribución, independiente del archivo físico que la contiene.
+
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| id | integer | Primary key |
+| distribucion_id | integer | FK → distribuciones.id |
+| recurso_key | varchar(100) | Identificador estable del recurso |
+| nombre | text | Nombre descriptivo |
+| descripcion | text | Descripción funcional |
+| activo | boolean | Indicador de vigencia |
+| created_at | datetime | Fecha de creación |
+| updated_at | datetime | Última modificación |
+
+## ArchivoRecurso
+
+Tabla puente entre archivos físicos y recursos lógicos. Indica dónde se encuentra un recurso dentro de un archivo.
+
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| id | integer | Primary key |
+| archivo_id | integer | FK → archivos.id |
+| recurso_datos_id | integer | FK → recurso_datos.id |
+| locator_type | enum | root, sheet, member, json_path, xpath |
+| locator_value | text | Valor del localizador |
+| created_at | datetime | Fecha de creación |
