@@ -139,12 +139,12 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index("idx_archivos_ingestion", table_name="archivos")
-    op.drop_index("idx_archivos_hash", table_name="archivos")
+    op.execute("DROP INDEX IF EXISTS idx_archivos_ingestion")
+    op.execute("DROP INDEX IF EXISTS idx_archivos_hash")
     op.drop_table("archivos")
 
-    op.drop_index("idx_ingestions_dataset_started", table_name="ingestions")
-    op.drop_index("idx_ingestions_dataset_status", table_name="ingestions")
+    op.execute("DROP INDEX IF EXISTS idx_ingestions_dataset_started")
+    op.execute("DROP INDEX IF EXISTS idx_ingestions_dataset_status")
     op.drop_table("ingestions")
 
     op.drop_table("datasets")
