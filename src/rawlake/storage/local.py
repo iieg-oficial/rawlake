@@ -24,7 +24,6 @@ class LocalStorageBackend(StorageBackend):
         self,
         root: str,
         dataset_key: str,
-        distribucion_key: str,
         period_label: str,
         version_timestamp: datetime,
         file_extension: str,
@@ -32,7 +31,6 @@ class LocalStorageBackend(StorageBackend):
         return build_version_path(
             root=root,
             dataset_key=dataset_key,
-            distribucion_key=distribucion_key,
             period_label=period_label,
             version_timestamp=version_timestamp,
             file_extension=file_extension,

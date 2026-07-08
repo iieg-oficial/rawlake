@@ -1,4 +1,4 @@
-# Esquema de Base de Datos
+# Esquema de Base de Datos (Beta)
 
 ## Esquema
 
@@ -11,42 +11,14 @@
 | Columna | Tipo | Descripción |
 |---------|------|-------------|
 | id | integer | Primary key |
-| nombre_corto | varchar(100) | Nombre único del dataset |
+| nombre_corto | varchar(100) | Nombre único del dataset (product_key) |
 | nombre | text | Nombre completo |
 | fuente | text | Fuente de los datos |
 | descripcion | text | Descripción opcional |
 | periodicidad | text | Frecuencia de actualización |
 | desagregacion_geografica | text | Nivel geográfico |
 | inicio_cobertura_temporal | text | Inicio de datos históricos |
-| created_at | datetime | Fecha de creación |
-| updated_at | datetime | Última modificación |
-
-### distribuciones
-
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| id | integer | Primary key |
-| dataset_id | integer | FK → datasets.id |
-| nombre | text | Nombre de la distribución |
-| descripcion | text | Descripción opcional |
-| tipo_de_acceso | enum | MANUAL_UPLOAD, HTTP_FILE, API_JSON |
-| manual_upload_allowed | boolean | Permite carga manual |
-| url | text | URL del recurso |
-| created_at | datetime | Fecha de creación |
-| updated_at | datetime | Última modificación |
-
-### ingestion_configs
-
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| id | integer | Primary key |
-| distribucion_id | integer | FK → distribuciones.id |
-| extractor_class | varchar(100) | Clase del extractor |
-| period_type | enum | DAILY, WEEKLY, MONTHLY, etc. |
-| ingestion_mode | enum | MANUAL, AUTOMATED, HYBRID |
-| expected_file_types | array | Tipos de archivo esperados |
-| schedule | varchar(100) | Expresión cron |
-| is_active | boolean | Si está activa |
+| is_active | boolean | Si el dataset está activo |
 | created_at | datetime | Fecha de creación |
 | updated_at | datetime | Última modificación |
 
@@ -57,18 +29,14 @@
 | id | integer | Primary key |
 | run_id | varchar(100) | ID único de ejecución |
 | dataset_id | integer | FK → datasets.id |
-| distribucion_id | integer | FK → distribuciones.id |
-| period_label | varchar(50) | Etiqueta del periodo |
-| status | enum | RUNNING, SUCCESS, FAILED, etc. |
+| status | enum | RUNNING, SUCCESS, FAILED, DUPLICATED |
 | trigger_type | enum | SCHEDULED, MANUAL_CLI, etc. |
 | ingestion_mode | enum | MANUAL, AUTOMATED, HYBRID |
 | created_by | varchar(100) | Usuario que inició |
-| nombre_archivo | text | Nombre del archivo |
-| dropzone_path | text | Ruta del dropzone |
-| manifest_path | text | Ruta del manifiesto |
 | started_at | datetime | Inicio de ejecución |
 | finished_at | datetime | Fin de ejecución |
 | error_message | text | Mensaje de error |
+| notes | text | Notas adicionales |
 | orchestrator_name | varchar(100) | Nombre del orquestador |
 | orchestrator_flow_id | varchar(100) | ID del flow/DAG |
 | orchestrator_run_id | varchar(100) | ID de la ejecución |
@@ -80,15 +48,10 @@
 |---------|------|-------------|
 | id | integer | Primary key |
 | ingestion_id | integer | FK → ingestions.id |
-| distribucion_id | integer | FK → distribuciones.id |
 | nombre_archivo | text | Nombre del archivo |
 | file_size_bytes | bigint | Tamaño en bytes |
 | hash_sha256 | varchar(64) | Hash SHA256 |
-| period_label | varchar(50) | Etiqueta del periodo |
-| version_number | integer | Número de versión |
-| version_timestamp | datetime | Timestamp de versión |
-| is_latest_for_period | boolean | Última versión del periodo |
-| storage_backend | varchar(50) | Backend de almacenamiento |
+| period_label | varchar(50) | Etiqueta del periodo (opcional) |
 | storage_path | text | Ruta en el storage |
 | file_extension | varchar(20) | Extensión del archivo |
 | mime_type | varchar(100) | Tipo MIME |
@@ -100,42 +63,31 @@
 
 ## Relaciones
 
-- `datasets` → `distribuciones` (1:N)
 - `datasets` → `ingestions` (1:N)
-- `distribuciones` → `ingestion_configs` (1:1)
-- `distribuciones` → `ingestions` (1:N)
-- `distribuciones` → `archivos` (1:N)
-- `distribuciones` → `recurso_datos` (1:N)
 - `ingestions` → `archivos` (1:N)
-- `archivos` → `archivo_recurso` (1:N)
-- `recurso_datos` → `archivo_recurso` (1:N)
 
-> **Nota:** La relación `distribuciones` → `ingestion_configs` es técnicamente 1:1 (implementada con `uselist=False` en SQLAlchemy). ERDAlchemy no detecta esta cardinalidad y la muestra como 1:N en el diagrama, pero el modelo garantiza que cada distribución tenga como máximo una configuración de ingestión.
+## Índices
 
-## RecursoDatos
+### datasets
+- `nombre_corto` (UNIQUE)
 
-Representa una unidad lógica de información publicada por una distribución, independiente del archivo físico que la contiene.
+### ingestions
+- `run_id` (UNIQUE)
+- `idx_ingestions_dataset_status` (dataset_id, status)
+- `idx_ingestions_dataset_started` (dataset_id, started_at)
 
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| id | integer | Primary key |
-| distribucion_id | integer | FK → distribuciones.id |
-| recurso_key | varchar(100) | Identificador estable del recurso |
-| nombre | text | Nombre descriptivo |
-| descripcion | text | Descripción funcional |
-| activo | boolean | Indicador de vigencia |
-| created_at | datetime | Fecha de creación |
-| updated_at | datetime | Última modificación |
+### archivos
+- `idx_archivos_hash` (hash_sha256)
+- `idx_archivos_ingestion` (ingestion_id)
 
-## ArchivoRecurso
+## Nota sobre el Alcance Beta
 
-Tabla puente entre archivos físicos y recursos lógicos. Indica dónde se encuentra un recurso dentro de un archivo.
-
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| id | integer | Primary key |
-| archivo_id | integer | FK → archivos.id |
-| recurso_datos_id | integer | FK → recurso_datos.id |
-| locator_type | enum | root, sheet, member, json_path, xpath |
-| locator_value | text | Valor del localizador |
-| created_at | datetime | Fecha de creación |
+> **Importante:** Este esquema representa el alcance mínimo viable para la primera beta de RawLake. Las siguientes funcionalidades quedan **fuera de esta iteración** y podrán agregarse en futuras versiones según necesidad:
+>
+> - **Distribuciones**: Modelado de múltiples formatos o accesos para un mismo dataset
+> - **Ingestion Configs**: Configuración dinámica de extractores y schedules
+> - **Recurso Datos**: Catalogación de entidades lógicas dentro de archivos (hojas de Excel, miembros de ZIP, etc.)
+> - **Schema Registry**: Análisis y validación de estructuras de columnas y tipos
+> - **Versionado por periodo**: Control de versiones y flags de "último válido" por periodo
+>
+> El modelo actual está diseñado para soportar el flujo básico de landing zone con auditoría, permitiendo que los ETLs del DWH consulten la última ejecución exitosa y obtengan la ruta de los archivos disponibles. La interpretación del contenido de los archivos sigue siendo responsabilidad de cada ETL específico.

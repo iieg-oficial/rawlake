@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Optional
 
 
 class Logger:
@@ -20,7 +19,7 @@ class Logger:
             self._logger.addHandler(handler)
 
     @classmethod
-    def get(cls, name: str, level: Optional[int] = None) -> "Logger":
+    def get(cls, name: str, level: int | None = None) -> "Logger":
         if name not in cls._instances:
             cls._instances[name] = cls(name, level or logging.INFO)
         return cls._instances[name]

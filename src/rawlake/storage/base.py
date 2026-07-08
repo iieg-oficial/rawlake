@@ -25,7 +25,6 @@ class StorageBackend(ABC):
         self,
         root: str,
         dataset_key: str,
-        distribucion_key: str,
         period_label: str,
         version_timestamp: datetime,
         file_extension: str,
@@ -40,7 +39,6 @@ class StorageBackend(ABC):
 def build_version_path(
     root: str,
     dataset_key: str,
-    distribucion_key: str,
     period_label: str,
     version_timestamp: datetime,
     file_extension: str,
@@ -48,13 +46,12 @@ def build_version_path(
     """Build a versioned path following the datalake structure.
 
     Structure:
-        {root}/dataset={dataset_key}/distribucion={distribucion_key}/periodo={period_label}/version={timestamp}/original.{ext}
+        {root}/dataset={dataset_key}/periodo={period_label}/version={timestamp}/original.{ext}
     """
     ts_str = version_timestamp.strftime("%Y-%m-%dT%H-%M-%S")
     return (
         f"{root}/"
         f"dataset={dataset_key}/"
-        f"distribucion={distribucion_key}/"
         f"periodo={period_label}/"
         f"version={ts_str}/"
         f"original.{file_extension}"
