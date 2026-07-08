@@ -23,16 +23,14 @@ class LocalStorageBackend(StorageBackend):
     def generate_version_path(
         self,
         root: str,
-        product_key: str,
-        source_key: str,
+        dataset_key: str,
         period_label: str,
         version_timestamp: datetime,
         file_extension: str,
     ) -> str:
         return build_version_path(
             root=root,
-            product_key=product_key,
-            source_key=source_key,
+            dataset_key=dataset_key,
             period_label=period_label,
             version_timestamp=version_timestamp,
             file_extension=file_extension,

@@ -9,10 +9,10 @@ env_path = Path(__file__).parent.parent.parent / ".env"
 if env_path.exists():
     load_dotenv(env_path)
 
-from rawlake.metadata.db import get_db_session
-from rawlake.metadata.models import IngestionMode, TriggerType
-from rawlake.metadata.repository import Repository
-from rawlake.services.ingestion_service import IngestionService
+from rawlake.metadata.db import get_db_session  # noqa: E402
+from rawlake.metadata.models import IngestionMode, TriggerType  # noqa: E402
+from rawlake.metadata.repository import Repository  # noqa: E402
+from rawlake.services.ingestion_service import IngestionService  # noqa: E402
 
 
 @click.group()
@@ -28,114 +28,82 @@ def version():
 
 
 @cli.group()
-def products():
-    """Manage products."""
+def datasets():
+    """Manage datasets."""
     pass
 
 
-@products.command("list")
-def products_list():
-    """List all products."""
+@datasets.command("list")
+def datasets_list():
+    """List all datasets."""
     with get_db_session() as session:
         repo = Repository(session)
-        product_list = repo.list_products()
-        if not product_list:
-            click.echo("No products found.")
+        dataset_list = repo.list_datasets()
+        if not dataset_list:
+            click.echo("No datasets found.")
             return
-        for p in product_list:
-            status = "active" if p.is_active else "inactive"
-            click.echo(f"[{status}] {p.product_key} - {p.name}")
+        for d in dataset_list:
+            click.echo(f"{d.nombre_corto} - {d.nombre}")
 
 
 @cli.group()
-def sources():
-    """Manage sources."""
+def ingestions():
+    """Manage ingestions."""
     pass
 
 
-@sources.command("list")
-@click.option("--product", help="Filter by product key")
-def sources_list(product):
-    """List all sources, optionally filtered by product."""
+@ingestions.command("list")
+@click.option("--dataset", help="Filter by dataset key")
+@click.option("--limit", default=20, help="Number of ingestions to show")
+def ingestions_list(dataset, limit):
+    """List recent ingestions."""
     with get_db_session() as session:
         repo = Repository(session)
-        source_list = repo.list_sources(product_key=product)
-        if not source_list:
-            click.echo("No sources found.")
+        ingestion_list = repo.list_ingestions(dataset_key=dataset, limit=limit)
+        if not ingestion_list:
+            click.echo("No ingestions found.")
             return
-        for s in source_list:
-            status = "active" if s.is_active else "inactive"
-            click.echo(
-                f"[{status}] {s.source_key} - {s.name} (type: {s.source_type.value}, mode: {s.ingestion_mode.value})"
-            )
-
-
-@cli.group()
-def runs():
-    """Manage ingestion runs."""
-    pass
-
-
-@runs.command("list")
-@click.option("--product", help="Filter by product key")
-@click.option("--limit", default=20, help="Number of runs to show")
-def runs_list(product, limit):
-    """List recent ingestion runs."""
-    with get_db_session() as session:
-        repo = Repository(session)
-        run_list = repo.list_runs(product_key=product, limit=limit)
-        if not run_list:
-            click.echo("No runs found.")
-            return
-        for r in run_list:
+        for i in ingestion_list:
             status_icon = {
                 "running": "🔄",
                 "success": "✅",
                 "failed": "❌",
                 "duplicated": "📋",
-                "rejected": "🚫",
-            }.get(r.status.value, "❓")
+            }.get(i.status.value, "❓")
             click.echo(
-                f"{status_icon} {r.run_id} | {r.status.value} | {r.period_label} | {r.created_at.strftime('%Y-%m-%d %H:%M')}"
+                f"{status_icon} {i.run_id} | {i.status.value} | "
+                f"{i.created_at.strftime('%Y-%m-%d %H:%M')}"
             )
 
 
 @cli.group()
-def assets():
-    """Manage raw assets."""
+def archivos():
+    """Manage archivos."""
     pass
 
 
-@assets.command("latest")
-@click.option("--product", required=True, help="Product key")
-@click.option("--source", required=True, help="Source key")
-@click.option("--period", required=True, help="Period label")
-def assets_latest(product, source, period):
-    """Get the latest asset for a product/source/period."""
+@archivos.command("latest")
+@click.option("--dataset", required=True, help="Dataset key")
+def archivos_latest(dataset):
+    """Get the latest archivo for a dataset."""
     with get_db_session() as session:
         repo = Repository(session)
-        prod = repo.get_product_by_key(product)
-        if not prod:
-            click.echo(f"Product not found: {product}", err=True)
+        ds = repo.get_dataset_by_key(dataset)
+        if not ds:
+            click.echo(f"Dataset not found: {dataset}", err=True)
             return
-        src = repo.get_source_by_key(prod.id, source)
-        if not src:
-            click.echo(f"Source not found: {source}", err=True)
+        archivo = repo.get_latest_archivo_by_dataset(ds.id)
+        if not archivo:
+            click.echo(f"No latest archivo found for {dataset}", err=True)
             return
-        asset = repo.get_latest_asset(prod.id, src.id, period)
-        if not asset:
-            click.echo(f"No latest asset found for {product}/{source}/{period}", err=True)
-            return
-        click.echo(f"Version: {asset.version_number}")
-        click.echo(f"Timestamp: {asset.version_timestamp}")
-        click.echo(f"Path: {asset.storage_path}")
-        click.echo(f"Size: {asset.file_size_bytes} bytes")
-        click.echo(f"Checksum: {asset.checksum_sha256}")
+        click.echo(f"Path: {archivo.storage_path}")
+        click.echo(f"Size: {archivo.file_size_bytes} bytes")
+        click.echo(f"Hash: {archivo.hash_sha256}")
+        click.echo(f"Period: {archivo.period_label}")
 
 
 @cli.command()
-@click.option("--product", required=True, help="Product key")
-@click.option("--source", required=True, help="Source key")
+@click.option("--dataset", required=True, help="Dataset key")
 @click.option("--period", required=True, help="Period label (e.g., 2026-01)")
 @click.option("--file", "file_path", required=True, help="Path to the file to register")
 @click.option(
@@ -144,8 +112,8 @@ def assets_latest(product, source, period):
 @click.option("--actor", help="Who is initiating this registration")
 @click.option("--source-url", help="Original URL of the file")
 @click.option("--notes", help="Additional notes")
-def register(product, source, period, file_path, mode, actor, source_url, notes):
-    """Register a raw asset in the datalake."""
+def register(dataset, period, file_path, mode, actor, source_url, notes):
+    """Register an archivo in the datalake."""
     if not Path(file_path).exists():
         click.echo(f"File not found: {file_path}", err=True)
         return
@@ -154,9 +122,8 @@ def register(product, source, period, file_path, mode, actor, source_url, notes)
     trigger_type = TriggerType.MANUAL_CLI
 
     service = IngestionService()
-    result = service.register_raw_asset(
-        product_key=product,
-        source_key=source,
+    result = service.register_archivo(
+        dataset_key=dataset,
         period_label=period,
         file_path=file_path,
         ingestion_mode=ingestion_mode,
@@ -171,21 +138,17 @@ def register(product, source, period, file_path, mode, actor, source_url, notes)
         return
 
     if result.is_duplicate:
-        click.echo(f"⚠️  Duplicate detected (SHA256 match with existing asset)")
-        click.echo(f"    Product: {product}")
-        click.echo(f"    Source: {source}")
+        click.echo("⚠️  Duplicate detected (SHA256 match with existing archivo)")
+        click.echo(f"    Dataset: {dataset}")
         click.echo(f"    Period: {period}")
-        click.echo(f"    Existing version: {result.asset.version_number}")
         return
 
-    asset = result.asset
-    click.echo("✅ Asset registered successfully!")
-    click.echo(f"    Product: {product}")
-    click.echo(f"    Source: {source}")
+    archivo = result.archivo
+    click.echo("✅ Archivo registered successfully!")
+    click.echo(f"    Dataset: {dataset}")
     click.echo(f"    Period: {period}")
-    click.echo(f"    Version: {asset.version_number}")
-    click.echo(f"    Hash: {asset.checksum_sha256}")
-    click.echo(f"    Path: {asset.storage_path}")
+    click.echo(f"    Hash: {archivo.hash_sha256}")
+    click.echo(f"    Path: {archivo.storage_path}")
 
 
 if __name__ == "__main__":

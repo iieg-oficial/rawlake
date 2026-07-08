@@ -1,22 +1,16 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from rawlake.metadata.models import (
+    Archivo,
+    Dataset,
+    Ingestion,
     IngestionMode,
-    IngestionRun,
-    ManualSubmission,
-    PeriodType,
-    Product,
-    RawAsset,
     RunStatus,
-    Source,
-    SourceType,
-    SubmissionStatus,
     TriggerType,
 )
 
@@ -25,98 +19,61 @@ class Repository:
     def __init__(self, session: Session):
         self._session = session
 
-    def get_product_by_key(self, product_key: str) -> Optional[Product]:
-        stmt = select(Product).where(Product.product_key == product_key)
+    def get_dataset_by_key(self, dataset_key: str) -> Dataset | None:
+        stmt = select(Dataset).where(Dataset.nombre_corto == dataset_key)
         return self._session.scalars(stmt).first()
 
-    def get_source_by_key(self, product_id: int, source_key: str) -> Optional[Source]:
-        stmt = select(Source).where(
-            Source.product_id == product_id, Source.source_key == source_key
-        )
-        return self._session.scalars(stmt).first()
-
-    def create_product(
+    def create_dataset(
         self,
-        product_key: str,
-        name: str,
-        description: Optional[str] = None,
-        owner_area: Optional[str] = None,
-        owner_person: Optional[str] = None,
-    ) -> Product:
-        product = Product(
-            product_key=product_key,
-            name=name,
-            description=description,
-            owner_area=owner_area,
-            owner_person=owner_person,
+        nombre_corto: str,
+        nombre: str,
+        descripcion: str | None = None,
+        fuente: str | None = None,
+        periodicidad: str | None = None,
+        desagregacion_geografica: str | None = None,
+        inicio_cobertura_temporal: str | None = None,
+    ) -> Dataset:
+        dataset = Dataset(
+            nombre_corto=nombre_corto,
+            nombre=nombre,
+            descripcion=descripcion,
+            fuente=fuente,
+            periodicidad=periodicidad,
+            desagregacion_geografica=desagregacion_geografica,
+            inicio_cobertura_temporal=inicio_cobertura_temporal,
         )
-        self._session.add(product)
+        self._session.add(dataset)
         self._session.flush()
-        return product
+        return dataset
 
-    def create_source(
+    def create_ingestion(
         self,
-        product_id: int,
-        source_key: str,
-        name: str,
-        source_type: SourceType,
-        ingestion_mode: IngestionMode,
-        description: Optional[str] = None,
-        manual_upload_allowed: bool = False,
-        requires_manifest: bool = True,
-        expected_file_types: Optional[list[str]] = None,
-        period_type: Optional[PeriodType] = None,
-        schedule: Optional[str] = None,
-    ) -> Source:
-        source = Source(
-            product_id=product_id,
-            source_key=source_key,
-            name=name,
-            description=description,
-            source_type=source_type,
-            ingestion_mode=ingestion_mode,
-            manual_upload_allowed=manual_upload_allowed,
-            requires_manifest=requires_manifest,
-            expected_file_types=expected_file_types,
-            period_type=period_type,
-            schedule=schedule,
-        )
-        self._session.add(source)
-        self._session.flush()
-        return source
-
-    def create_run(
-        self,
-        product_id: int,
-        source_id: int,
+        dataset_id: int,
         run_id: str,
-        period_label: str,
         ingestion_mode: IngestionMode,
         trigger_type: TriggerType,
-        created_by: Optional[str] = None,
-    ) -> IngestionRun:
-        run = IngestionRun(
-            product_id=product_id,
-            source_id=source_id,
+        created_by: str | None = None,
+    ) -> Ingestion:
+        ingestion = Ingestion(
+            dataset_id=dataset_id,
             run_id=run_id,
-            period_label=period_label,
             status=RunStatus.RUNNING,
             ingestion_mode=ingestion_mode,
             trigger_type=trigger_type,
             created_by=created_by,
         )
-        self._session.add(run)
+        self._session.add(ingestion)
         self._session.flush()
-        return run
+        return ingestion
 
-    def update_run_success(
+    def update_ingestion_success(
         self,
-        run_id: int,
-        finished_at: Optional[datetime] = None,
+        ingestion_id: int,
+        finished_at: datetime | None = None,
     ) -> None:
         stmt = (
-            update(IngestionRun)
-            .where(IngestionRun.id == run_id)
+            update(Ingestion)
+            .where(Ingestion.id == ingestion_id)
             .values(
                 status=RunStatus.SUCCESS,
                 finished_at=finished_at or datetime.utcnow(),
@@ -124,15 +81,15 @@ class Repository:
         )
         self._session.execute(stmt)
 
-    def update_run_failed(
+    def update_ingestion_failed(
         self,
-        run_id: int,
+        ingestion_id: int,
         error_message: str,
-        finished_at: Optional[datetime] = None,
+        finished_at: datetime | None = None,
     ) -> None:
         stmt = (
-            update(IngestionRun)
-            .where(IngestionRun.id == run_id)
+            update(Ingestion)
+            .where(Ingestion.id == ingestion_id)
             .values(
                 status=RunStatus.FAILED,
                 error_message=error_message,
@@ -141,10 +98,10 @@ class Repository:
         )
         self._session.execute(stmt)
 
-    def update_run_duplicated(self, run_id: int) -> None:
+    def update_ingestion_duplicated(self, ingestion_id: int) -> None:
         stmt = (
-            update(IngestionRun)
-            .where(IngestionRun.id == run_id)
+            update(Ingestion)
+            .where(Ingestion.id == ingestion_id)
             .values(
                 status=RunStatus.DUPLICATED,
                 finished_at=datetime.utcnow(),
@@ -154,187 +111,98 @@ class Repository:
 
     def find_duplicate_by_hash(
         self,
-        product_id: int,
-        source_id: int,
-        period_label: str,
-        checksum_sha256: str,
-    ) -> Optional[RawAsset]:
-        stmt = select(RawAsset).where(
-            RawAsset.product_id == product_id,
-            RawAsset.source_id == source_id,
-            RawAsset.period_label == period_label,
-            RawAsset.checksum_sha256 == checksum_sha256,
+        dataset_id: int,
+        hash_sha256: str,
+    ) -> Archivo | None:
+        stmt = (
+            select(Archivo)
+            .join(Ingestion)
+            .where(
+                Ingestion.dataset_id == dataset_id,
+                Archivo.hash_sha256 == hash_sha256,
+            )
         )
         return self._session.scalars(stmt).first()
 
-    def get_next_version_number(
+    def create_archivo(
         self,
-        product_id: int,
-        source_id: int,
-        period_label: str,
-    ) -> int:
-        stmt = select(RawAsset).where(
-            RawAsset.product_id == product_id,
-            RawAsset.source_id == source_id,
-            RawAsset.period_label == period_label,
-        )
-        existing = self._session.scalars(stmt).all()
-        if not existing:
-            return 1
-        return max(a.version_number for a in existing) + 1
-
-    def create_asset(
-        self,
-        run_id: int,
-        product_id: int,
-        source_id: int,
-        period_label: str,
-        version_number: int,
-        version_timestamp: datetime,
-        storage_backend: str,
+        ingestion_id: int,
         storage_path: str,
-        original_file_name: str,
-        checksum_sha256: str,
+        nombre_archivo: str,
+        hash_sha256: str,
         ingestion_mode: IngestionMode,
-        file_extension: Optional[str] = None,
-        mime_type: Optional[str] = None,
-        file_size_bytes: Optional[int] = None,
-        source_url: Optional[str] = None,
-        uploaded_by: Optional[str] = None,
-    ) -> RawAsset:
-        asset = RawAsset(
-            run_id=run_id,
-            product_id=product_id,
-            source_id=source_id,
-            period_label=period_label,
-            version_number=version_number,
-            version_timestamp=version_timestamp,
-            storage_backend=storage_backend,
+        period_label: str | None = None,
+        file_extension: str | None = None,
+        mime_type: str | None = None,
+        file_size_bytes: int | None = None,
+        source_url: str | None = None,
+        uploaded_by: str | None = None,
+    ) -> Archivo:
+        archivo = Archivo(
+            ingestion_id=ingestion_id,
             storage_path=storage_path,
-            original_file_name=original_file_name,
+            nombre_archivo=nombre_archivo,
             file_extension=file_extension,
             mime_type=mime_type,
             file_size_bytes=file_size_bytes,
-            checksum_sha256=checksum_sha256,
+            hash_sha256=hash_sha256,
+            period_label=period_label,
             source_url=source_url,
             uploaded_by=uploaded_by,
             ingestion_mode=ingestion_mode,
-            is_latest_for_period=True,
         )
-        self._session.add(asset)
+        self._session.add(archivo)
         self._session.flush()
-        return asset
+        return archivo
 
-    def update_old_assets_not_latest(
+    def get_latest_successful_ingestion(
         self,
-        product_id: int,
-        source_id: int,
-        period_label: str,
-        exclude_asset_id: int,
-    ) -> None:
+        dataset_id: int,
+    ) -> Ingestion | None:
         stmt = (
-            update(RawAsset)
+            select(Ingestion)
             .where(
-                RawAsset.product_id == product_id,
-                RawAsset.source_id == source_id,
-                RawAsset.period_label == period_label,
-                RawAsset.id != exclude_asset_id,
+                Ingestion.dataset_id == dataset_id,
+                Ingestion.status == RunStatus.SUCCESS,
             )
-            .values(is_latest_for_period=False)
-        )
-        self._session.execute(stmt)
-
-    def get_latest_asset(
-        self,
-        product_id: int,
-        source_id: int,
-        period_label: str,
-    ) -> Optional[RawAsset]:
-        stmt = select(RawAsset).where(
-            RawAsset.product_id == product_id,
-            RawAsset.source_id == source_id,
-            RawAsset.period_label == period_label,
-            RawAsset.is_latest_for_period == True,
+            .order_by(Ingestion.started_at.desc())
+            .limit(1)
         )
         return self._session.scalars(stmt).first()
 
-    def list_products(self) -> list[Product]:
-        stmt = select(Product).order_by(Product.product_key)
+    def get_archivos_by_ingestion(self, ingestion_id: int) -> list[Archivo]:
+        stmt = select(Archivo).where(Archivo.ingestion_id == ingestion_id)
         return list(self._session.scalars(stmt).all())
 
-    def list_sources(self, product_key: Optional[str] = None) -> list[Source]:
-        if product_key:
-            product = self.get_product_by_key(product_key)
-            if not product:
-                return []
-            stmt = select(Source).where(Source.product_id == product.id).order_by(Source.source_key)
-        else:
-            stmt = select(Source).order_by(Source.source_key)
-        return list(self._session.scalars(stmt).all())
-
-    def list_runs(
+    def get_latest_archivo_by_dataset(
         self,
-        product_key: Optional[str] = None,
+        dataset_id: int,
+    ) -> Archivo | None:
+        latest_ingestion = self.get_latest_successful_ingestion(dataset_id)
+        if not latest_ingestion:
+            return None
+        archivos = self.get_archivos_by_ingestion(latest_ingestion.id)
+        return archivos[0] if archivos else None
+
+    def list_datasets(self) -> list[Dataset]:
+        stmt = select(Dataset).order_by(Dataset.nombre_corto)
+        return list(self._session.scalars(stmt).all())
+
+    def list_ingestions(
+        self,
+        dataset_key: str | None = None,
         limit: int = 100,
-    ) -> list[IngestionRun]:
-        if product_key:
-            product = self.get_product_by_key(product_key)
-            if not product:
+    ) -> list[Ingestion]:
+        if dataset_key:
+            dataset = self.get_dataset_by_key(dataset_key)
+            if not dataset:
                 return []
             stmt = (
-                select(IngestionRun)
-                .where(IngestionRun.product_id == product.id)
-                .order_by(IngestionRun.created_at.desc())
+                select(Ingestion)
+                .where(Ingestion.dataset_id == dataset.id)
+                .order_by(Ingestion.created_at.desc())
                 .limit(limit)
             )
         else:
-            stmt = select(IngestionRun).order_by(IngestionRun.created_at.desc()).limit(limit)
+            stmt = select(Ingestion).order_by(Ingestion.created_at.desc()).limit(limit)
         return list(self._session.scalars(stmt).all())
-
-    def create_manual_submission(
-        self,
-        submission_id: str,
-        dropzone_path: str,
-        status: SubmissionStatus = SubmissionStatus.PENDING,
-        product_id: Optional[int] = None,
-        source_id: Optional[int] = None,
-        period_label: Optional[str] = None,
-        manifest_path: Optional[str] = None,
-        original_file_name: Optional[str] = None,
-        submitted_by: Optional[str] = None,
-    ) -> ManualSubmission:
-        submission = ManualSubmission(
-            submission_id=submission_id,
-            product_id=product_id,
-            source_id=source_id,
-            period_label=period_label,
-            dropzone_path=dropzone_path,
-            manifest_path=manifest_path,
-            original_file_name=original_file_name,
-            submitted_by=submitted_by,
-            status=status,
-        )
-        self._session.add(submission)
-        self._session.flush()
-        return submission
-
-    def update_manual_submission(
-        self,
-        submission_id: str,
-        status: Optional[SubmissionStatus] = None,
-        review_notes: Optional[str] = None,
-        processed_run_id: Optional[int] = None,
-    ) -> Optional[ManualSubmission]:
-        submission = self._session.scalars(
-            select(ManualSubmission).where(ManualSubmission.submission_id == submission_id)
-        ).first()
-        if not submission:
-            return None
-        if status is not None:
-            submission.status = status
-        if review_notes is not None:
-            submission.review_notes = review_notes
-        if processed_run_id is not None:
-            submission.processed_run_id = processed_run_id
-        self._session.flush()
-        return submission
