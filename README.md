@@ -17,12 +17,13 @@ Data lake system for raw asset management with Prefect orchestration, SQLAlchemy
 ```
 rawlake/
 ├── src/rawlake/          # Main package
+│   ├── core/             # Core components (config, database, logging, exceptions)
 │   ├── cli/              # Typer CLI application
-│   ├── config/           # Configuration management
-│   ├── extractors/       # Data extraction
-│   ├── metadata/         # Metadata handling
+│   ├── extractors/       # Data extraction (BaseExtractor)
+│   ├── flows/            # Prefect flows (BaseFlow)
+│   ├── metadata/         # Metadata models and repository
 │   ├── schemas/          # Pydantic schemas
-│   ├── services/         # Business logic
+│   ├── services/         # Business logic (BaseService)
 │   ├── storage/          # Storage abstraction (MinIO-ready)
 │   └── utils/            # Utilities
 ├── configs/products/     # Product-specific configurations
@@ -33,6 +34,29 @@ rawlake/
 ├── justfile             # Development tasks
 └── pyproject.toml       # Project configuration
 ```
+
+## Architecture
+
+RawLake follows a modular architecture with clear separation of concerns:
+
+### Core (`src/rawlake/core/`)
+Cross-cutting components used throughout the system:
+- `config.py` - Centralized configuration (pydantic-settings)
+- `database.py` - Database engine, sessions, connection pooling
+- `logging.py` - Logging configuration
+- `constants.py` - Global system constants
+- `exceptions.py` - Custom exception hierarchy
+- `types.py` - Type aliases and protocols
+
+### Domain Modules
+- `metadata/` - ORM models (Dataset, Ingestion, Archivo) and repository
+- `extractors/` - Data extractors (inherit from BaseExtractor)
+- `services/` - Business logic (inherit from BaseService)
+- `storage/` - Storage backends
+- `flows/` - Prefect flows (inherit from BaseFlow)
+
+### Interfaces
+- `cli/` - Command-line interface
 
 ## Setup
 

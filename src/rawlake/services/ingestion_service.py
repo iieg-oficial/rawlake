@@ -7,8 +7,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from rawlake.config import get_config
-from rawlake.metadata.db import get_db_session
+from rawlake.core.config import get_config
+from rawlake.core.database import get_db_session
 
 env_path = Path(__file__).parent.parent.parent.parent / ".env"
 if env_path.exists():

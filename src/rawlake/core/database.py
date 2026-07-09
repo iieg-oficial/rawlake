@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from rawlake.config import get_config
+from rawlake.core.config import get_config
 from rawlake.metadata.models import Base
 
 env_path = Path(__file__).parent.parent.parent.parent / ".env"

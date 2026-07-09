@@ -8,7 +8,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-from rawlake.config import get_config
+from rawlake.core.config import get_config
 from rawlake.metadata.models import Base
 
 env_path = Path(__file__).parent.parent / ".env"

@@ -1,3 +1,3 @@
-from rawlake.utils.logger import Logger
+from rawlake.core.logging import Logger
 
 __all__ = ["Logger"]

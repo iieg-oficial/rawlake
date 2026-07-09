@@ -9,7 +9,7 @@ env_path = Path(__file__).parent.parent.parent / ".env"
 if env_path.exists():
     load_dotenv(env_path)
 
-from rawlake.metadata.db import get_db_session  # noqa: E402
+from rawlake.core.database import get_db_session  # noqa: E402
 from rawlake.metadata.models import IngestionMode, TriggerType  # noqa: E402
 from rawlake.metadata.repository import Repository  # noqa: E402
 from rawlake.services.ingestion_service import IngestionService  # noqa: E402
