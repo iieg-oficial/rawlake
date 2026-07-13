@@ -5,24 +5,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 from rawlake.core.config import get_config
 from rawlake.core.database import get_db_session
-
-env_path = Path(__file__).parent.parent.parent.parent / ".env"
-if env_path.exists():
-    load_dotenv(env_path)
-
-from rawlake.metadata.models import (  # noqa: E402
-    IngestionMode,
-    TriggerType,
-)
-from rawlake.metadata.repository import Repository  # noqa: E402
-from rawlake.services.checksum_service import ChecksumService  # noqa: E402
-from rawlake.services.versioning_service import VersioningService  # noqa: E402
-from rawlake.storage.base import StorageBackend  # noqa: E402
-from rawlake.storage.local import LocalStorageBackend  # noqa: E402
+from rawlake.metadata.models import IngestionMode, TriggerType
+from rawlake.metadata.repository import Repository
+from rawlake.services.checksum_service import ChecksumService
+from rawlake.services.versioning_service import VersioningService
+from rawlake.storage.base import StorageBackend
+from rawlake.storage.local import LocalStorageBackend
 
 
 @dataclass
@@ -61,17 +51,6 @@ class IngestionService:
         source_url: str | None = None,
         notes: str | None = None,
     ) -> RegisterResult:
-        """Register an archivo in the datalake.
-
-        This is the core function of the system. It orchestrates:
-        1. Validation of dataset
-        2. File validation (exists, not empty)
-        3. Hash calculation
-        4. Duplicate detection
-        5. Storage copy
-        6. metadata.json generation
-        7. DB registration
-        """
         with get_db_session() as session:
             repo = Repository(session)
 
@@ -229,21 +208,6 @@ def register_archivo(
     source_url: str | None = None,
     notes: str | None = None,
 ) -> RegisterResult:
-    """Convenience function to register an archivo.
-
-    Args:
-        dataset_key: The dataset key (e.g., 'inegi-imaief')
-        period_label: The period label (e.g., '2026-01')
-        file_path: Path to the file to register
-        ingestion_mode: 'manual' or 'automated'
-        trigger_type: What triggered this ingestion
-        actor: Who/what initiated this (e.g., username)
-        source_url: Original URL of the file
-        notes: Additional notes
-
-    Returns:
-        RegisterResult with success status and archivo info
-    """
     service = IngestionService()
     return service.register_archivo(
         dataset_key=dataset_key,

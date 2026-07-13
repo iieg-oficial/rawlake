@@ -1,7 +1,14 @@
-from functools import lru_cache
+from __future__ import annotations
 
+from pathlib import Path
+
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_env_path = Path(__file__).parent.parent.parent.parent / ".env"
+if _env_path.exists():
+    load_dotenv(_env_path)
 
 
 class BaseConfig(BaseSettings):
@@ -22,6 +29,9 @@ class BaseConfig(BaseSettings):
     @property
     def database_url(self) -> str:
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+
+from functools import lru_cache  # noqa: E402
 
 
 @lru_cache

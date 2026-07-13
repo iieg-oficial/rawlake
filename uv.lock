@@ -1730,6 +1730,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },
+    { name = "click" },
     { name = "prefect" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
@@ -1737,8 +1738,8 @@ dependencies = [
     { name = "pytest" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
+    { name = "requests" },
     { name = "sqlalchemy" },
-    { name = "typer" },
 ]
 
 [package.dev-dependencies]
@@ -1751,6 +1752,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.13.0" },
+    { name = "click", specifier = ">=8.0.0" },
     { name = "prefect", specifier = ">=3.0.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
@@ -1758,8 +1760,8 @@ requires-dist = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "pyyaml", specifier = ">=6.0.0" },
+    { name = "requests", specifier = ">=2.31.0" },
     { name = "sqlalchemy", specifier = ">=2.0.0" },
-    { name = "typer", specifier = ">=0.12.0" },
 ]
 
 [package.metadata.requires-dev]

@@ -1,19 +1,13 @@
 from __future__ import annotations
 
 from logging.config import fileConfig
-from pathlib import Path
 
-from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
 from rawlake.core.config import get_config
 from rawlake.metadata.models import Base
-
-env_path = Path(__file__).parent.parent / ".env"
-if env_path.exists():
-    load_dotenv(env_path)
 
 ralwakecfg = get_config()
 

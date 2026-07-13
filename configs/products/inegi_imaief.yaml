@@ -1,0 +1,25 @@
+dataset_key: inegi_imaief
+nombre: "Indicador Mensual de la Actividad Económica de Jalisco"
+fuente: INEGI
+descripcion: "Serie mensual del IMAIEF para Jalisco"
+periodicidad: mensual
+desagregacion_geografica: estatal
+inicio_cobertura_temporal: "1993-01"
+
+extractor:
+  type: http
+  url: "https://www.inegi.org.mx/contenidos/programas/imaief/prod_serv/contenidos/imaief_jal.csv"
+  method: GET
+  headers: {}
+  timeout_seconds: 60
+
+landing:
+  period_label_strategy: current_month
+
+schedule:
+  cron: "0 9 5 * *"
+  timezone: "America/Mexico_City"
+  enabled: true
+
+storage:
+  backend: local

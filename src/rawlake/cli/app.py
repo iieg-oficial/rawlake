@@ -3,16 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import click
-from dotenv import load_dotenv
 
-env_path = Path(__file__).parent.parent.parent / ".env"
-if env_path.exists():
-    load_dotenv(env_path)
-
-from rawlake.core.database import get_db_session  # noqa: E402
-from rawlake.metadata.models import IngestionMode, TriggerType  # noqa: E402
-from rawlake.metadata.repository import Repository  # noqa: E402
-from rawlake.services.ingestion_service import IngestionService  # noqa: E402
+from rawlake.core.database import get_db_session
+from rawlake.metadata.models import IngestionMode, TriggerType
+from rawlake.metadata.repository import Repository
+from rawlake.services.ingestion_service import IngestionService
 
 
 @click.group()
@@ -149,6 +144,56 @@ def register(dataset, period, file_path, mode, actor, source_url, notes):
     click.echo(f"    Period: {period}")
     click.echo(f"    Hash: {archivo.hash_sha256}")
     click.echo(f"    Path: {archivo.storage_path}")
+
+
+@cli.group()
+def ingest():
+    """Run ingestion flows."""
+    pass
+
+
+@ingest.command("run")
+@click.option("--dataset", required=True, help="Dataset key (must have a manifest YAML)")
+@click.option("--period", default=None, help="Period label override (e.g., 2026-01)")
+def ingest_run(dataset, period):
+    """Run ingestion for a dataset using its manifest."""
+    from rawlake.flows.ingestion_flow import run_ingestion
+
+    try:
+        result = run_ingestion(
+            dataset_key=dataset,
+            trigger_type=TriggerType.MANUAL_CLI.value,
+            period_label=period,
+        )
+        for r in result["results"]:
+            if r["success"]:
+                if r["is_duplicate"]:
+                    click.echo(f"📋 Duplicate: {r['file']}")
+                else:
+                    click.echo(f"✅ Ingested: {r['file']}")
+            else:
+                click.echo(f"❌ Failed: {r['file']} - {r['error']}", err=True)
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+
+
+@cli.group()
+def flows():
+    """Manage Prefect flows."""
+    pass
+
+
+@flows.command("deploy")
+def flows_deploy():
+    """Deploy Prefect deployments for all product manifests."""
+    from rawlake.flows.deploy import deploy_all
+
+    # Que viva el vibe coding y la no revision humana del codigo
+    try:
+        count = deploy_all()
+        click.echo(f"✅ Deployed {count} deployment(s)")
+    except Exception as e:
+        click.echo(f"Error deploying: {e}", err=True)
 
 
 if __name__ == "__main__":

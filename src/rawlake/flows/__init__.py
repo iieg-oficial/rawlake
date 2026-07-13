@@ -1,5 +1,5 @@
 """Módulo de flujos de Prefect."""
 
-from rawlake.flows.base import BaseFlow
+from rawlake.flows.ingestion_flow import run_ingestion
 
-__all__ = ["BaseFlow"]
+__all__ = ["run_ingestion"]
