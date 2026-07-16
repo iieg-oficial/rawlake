@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from prefect.deployments import Deployment
 
 from rawlake.core.logging import Logger

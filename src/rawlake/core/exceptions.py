@@ -5,6 +5,10 @@ class RawLakeError(Exception):
     pass
 
 
+class ConfigurationError(RawLakeError):
+    pass
+
+
 class DatasetNotFoundError(RawLakeError):
     def __init__(self, dataset_key: str):
         self.dataset_key = dataset_key
@@ -45,7 +49,3 @@ class ManifestError(RawLakeError):
         self.dataset_key = dataset_key
         self.reason = reason
         super().__init__(f"Invalid manifest for '{dataset_key}': {reason}")
-
-
-class ConfigurationError(RawLakeError):
-    pass

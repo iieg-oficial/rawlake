@@ -11,12 +11,8 @@ from rawlake.schemas.product_manifest import ProductManifest
 _PRODUCTS_DIR = Path(__file__).parent.parent.parent.parent / "configs" / "products"
 
 
-def _manifests_dir() -> Path:
-    return _PRODUCTS_DIR
-
-
 def load_manifest(dataset_key: str) -> ProductManifest:
-    manifest_path = _manifests_dir() / f"{dataset_key}.yaml"
+    manifest_path = _PRODUCTS_DIR / f"{dataset_key}.yaml"
     if not manifest_path.exists():
         raise ManifestError(dataset_key, f"Manifest file not found: {manifest_path}")
 
@@ -30,12 +26,14 @@ def load_manifest(dataset_key: str) -> ProductManifest:
 
 
 def load_all_manifests() -> list[ProductManifest]:
-    manifests_dir = _manifests_dir()
-    if not manifests_dir.exists():
-        return []
+    if not _PRODUCTS_DIR.exists():
+        raise ManifestError(
+            dataset_key="*",
+            reason=f"Products directory not found: {_PRODUCTS_DIR}",
+        )
 
     results: list[ProductManifest] = []
-    for yaml_file in sorted(manifests_dir.glob("*.yaml")):
+    for yaml_file in sorted(_PRODUCTS_DIR.glob("*.yaml")):
         key = yaml_file.stem
         results.append(load_manifest(key))
     return results

@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 
 from rawlake.core.exceptions import ExtractorNotFoundError
 from rawlake.extractors.http import HttpExtractor
-from rawlake.metadata.models import Dataset
 
 if TYPE_CHECKING:
     from rawlake.extractors.base import BaseExtractor
+    from rawlake.metadata.models import Dataset
     from rawlake.schemas.product_manifest import ProductManifest
 
 _BUILTIN: dict[str, type] = {

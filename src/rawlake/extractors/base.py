@@ -19,9 +19,9 @@ class BaseExtractor(ABC):
         config: Configuración del extractor (opcional)
     """
 
-    def __init__(self, dataset: Dataset, config: dict | None = None):
+    def __init__(self, dataset: Dataset, config: dict):
         self.dataset = dataset
-        self.config = config or {}
+        self.config = config
 
     @abstractmethod
     def extract(self, period_label: str | None = None) -> list[Path]:

@@ -1,31 +1,27 @@
-from __future__ import annotations
-
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-from rawlake.core.config import get_config
+from rawlake.core.config import config
 from rawlake.metadata.models import Base
 
-ralwakecfg = get_config()
+config_alembic = context.config
 
-config = context.config
-
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+if config_alembic.config_file_name is not None:
+    fileConfig(config_alembic.config_file_name)
 
 target_metadata = Base.metadata
 
-config.set_main_option(
+config_alembic.set_main_option(
     "sqlalchemy.url",
-    ralwakecfg.database_url,
+    config.database_url,
 )
 
 
 def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
+    url = config_alembic.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -39,7 +35,7 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config_alembic.get_section(config_alembic.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

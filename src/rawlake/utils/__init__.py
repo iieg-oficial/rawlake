@@ -1,3 +1,1 @@
-from rawlake.core.logging import Logger
-
-__all__ = ["Logger"]
+"""Módulo de utilidades de RawLake."""

@@ -152,6 +152,12 @@ def ingest():
     pass
 
 
+@cli.group()
+def flows():
+    """Manage Prefect flows."""
+    pass
+
+
 @ingest.command("run")
 @click.option("--dataset", required=True, help="Dataset key (must have a manifest YAML)")
 @click.option("--period", default=None, help="Period label override (e.g., 2026-01)")
@@ -177,18 +183,11 @@ def ingest_run(dataset, period):
         click.echo(f"Error: {e}", err=True)
 
 
-@cli.group()
-def flows():
-    """Manage Prefect flows."""
-    pass
-
-
 @flows.command("deploy")
 def flows_deploy():
     """Deploy Prefect deployments for all product manifests."""
     from rawlake.flows.deploy import deploy_all
 
-    # Que viva el vibe coding y la no revision humana del codigo
     try:
         count = deploy_all()
         click.echo(f"✅ Deployed {count} deployment(s)")

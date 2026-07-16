@@ -11,7 +11,7 @@ if _env_path.exists():
     load_dotenv(_env_path)
 
 
-class BaseConfig(BaseSettings):
+class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -31,9 +31,4 @@ class BaseConfig(BaseSettings):
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
-from functools import lru_cache  # noqa: E402
-
-
-@lru_cache
-def get_config() -> BaseConfig:
-    return BaseConfig()
+config = Config()

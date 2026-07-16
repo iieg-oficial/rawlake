@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from rawlake.core.config import get_config
+from rawlake.core.config import config
 from rawlake.core.database import get_db_session
 from rawlake.metadata.models import IngestionMode, TriggerType
 from rawlake.metadata.repository import Repository
@@ -104,7 +104,7 @@ class IngestionService:
 
             version_timestamp = self._versioning.generate_version_timestamp()
 
-            storage_root = get_config().RAWLAKE_LOCAL_ROOT
+            storage_root = config.RAWLAKE_LOCAL_ROOT
 
             storage_path = self._storage.generate_version_path(
                 root=storage_root,

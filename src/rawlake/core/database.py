@@ -6,9 +6,7 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from rawlake.core.config import get_config
-
-config = get_config()
+from rawlake.core.config import config
 
 engine = create_engine(config.database_url, echo=False)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)

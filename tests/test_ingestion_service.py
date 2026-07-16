@@ -1,25 +1,30 @@
 from __future__ import annotations
 
-import os
 import tempfile
+from contextlib import contextmanager
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from rawlake.metadata.models import IngestionMode, TriggerType
 from rawlake.services.ingestion_service import IngestionService
 
 
-def _make_temp_csv(content: str = "id,valor\n1,100\n") -> str:
-    f = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False)
-    f.write(content)
-    f.close()
-    return f.name
+@contextmanager
+def _make_temp_csv(content: str = "id,valor\n1,100\n"):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
+        f.write(content)
+        f.flush()
+        path = f.name
+    try:
+        yield path
+    finally:
+        Path(path).unlink(missing_ok=True)
 
 
 class TestRegisterArchivoDatasetNotFound:
     def test_returns_error_when_dataset_missing(self):
         service = IngestionService()
-        tmp = _make_temp_csv()
-        try:
+        with _make_temp_csv() as tmp:
             with patch("rawlake.services.ingestion_service.get_db_session") as mock_db:
                 mock_session = MagicMock()
                 mock_db.return_value.__enter__ = MagicMock(return_value=mock_session)
@@ -40,8 +45,6 @@ class TestRegisterArchivoDatasetNotFound:
 
             assert result.success is False
             assert "not found" in result.error_message.lower()
-        finally:
-            os.unlink(tmp)
 
 
 class TestRegisterArchivoFileValidation:
@@ -72,8 +75,7 @@ class TestRegisterArchivoFileValidation:
 
     def test_returns_error_when_file_empty(self):
         service = IngestionService()
-        tmp = _make_temp_csv(content="")
-        try:
+        with _make_temp_csv(content="") as tmp:
             with patch("rawlake.services.ingestion_service.get_db_session") as mock_db:
                 mock_session = MagicMock()
                 mock_db.return_value.__enter__ = MagicMock(return_value=mock_session)
@@ -96,15 +98,12 @@ class TestRegisterArchivoFileValidation:
 
             assert result.success is False
             assert "empty" in result.error_message.lower()
-        finally:
-            os.unlink(tmp)
 
 
 class TestRegisterArchivoDuplicate:
     def test_detects_duplicate_by_hash(self):
         service = IngestionService()
-        tmp = _make_temp_csv()
-        try:
+        with _make_temp_csv() as tmp:
             with patch("rawlake.services.ingestion_service.get_db_session") as mock_db:
                 mock_session = MagicMock()
                 mock_db.return_value.__enter__ = MagicMock(return_value=mock_session)
@@ -139,5 +138,3 @@ class TestRegisterArchivoDuplicate:
             assert result.success is True
             assert result.is_duplicate is True
             assert result.archivo.hash_sha256 == "abc123"
-        finally:
-            os.unlink(tmp)
