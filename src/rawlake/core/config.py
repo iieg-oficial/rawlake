@@ -1,14 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-_env_path = Path(__file__).parent.parent.parent.parent / ".env"
-if _env_path.exists():
-    load_dotenv(_env_path)
 
 
 class Config(BaseSettings):
