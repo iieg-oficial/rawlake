@@ -11,10 +11,6 @@ if TYPE_CHECKING:
     from rawlake.metadata.models import Dataset
     from rawlake.schemas.product_manifest import ProductManifest
 
-_BUILTIN: dict[str, type] = {
-    "http": HttpExtractor,
-}
-
 
 def resolve_extractor(
     manifest: ProductManifest,
