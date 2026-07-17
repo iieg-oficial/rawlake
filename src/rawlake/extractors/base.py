@@ -63,8 +63,7 @@ class BaseExtractor(ABC):
             file_paths: Lista de paths a limpiar
         """
         for path in file_paths:
-            if path.exists():
-                path.unlink()
+            path.unlink(missing_ok=True)
 
     def run(self, period_label: str | None = None) -> list[Path]:
         """
