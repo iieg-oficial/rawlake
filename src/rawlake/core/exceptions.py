@@ -9,12 +9,6 @@ class ConfigurationError(RawLakeError):
     pass
 
 
-class DatasetNotFoundError(RawLakeError):
-    def __init__(self, dataset_key: str):
-        self.dataset_key = dataset_key
-        super().__init__(f"Dataset not found: {dataset_key}")
-
-
 class IngestionError(RawLakeError):
     pass
 
@@ -27,15 +21,21 @@ class StorageError(RawLakeError):
     pass
 
 
+class ExtractorError(RawLakeError):
+    pass
+
+
+class DatasetNotFoundError(RawLakeError):
+    def __init__(self, dataset_key: str):
+        self.dataset_key = dataset_key
+        super().__init__(f"Dataset not found: {dataset_key}")
+
+
 class DuplicateFileError(RawLakeError):
     def __init__(self, hash_sha256: str, dataset_key: str):
         self.hash_sha256 = hash_sha256
         self.dataset_key = dataset_key
         super().__init__(f"Duplicate file detected (hash: {hash_sha256}) in dataset: {dataset_key}")
-
-
-class ExtractorError(RawLakeError):
-    pass
 
 
 class ExtractorNotFoundError(RawLakeError):
