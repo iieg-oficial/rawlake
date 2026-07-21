@@ -1,10 +1,10 @@
-from functools import lru_cache
+from __future__ import annotations
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class BaseConfig(BaseSettings):
+class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -24,6 +24,4 @@ class BaseConfig(BaseSettings):
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
-@lru_cache
-def get_config() -> BaseConfig:
-    return BaseConfig()
+config = Config()
