@@ -111,7 +111,7 @@ class IngestionService:
                 dataset_key=dataset_key,
                 period_label=period_label,
                 version_timestamp=version_timestamp,
-                file_extension=file_ext,
+                nombre_archivo=original_name,
             )
 
             run_id = self._versioning.generate_run_id()

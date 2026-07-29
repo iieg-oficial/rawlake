@@ -79,7 +79,7 @@ def test_build_version_path():
         dataset_key="test_dataset",
         period_label="2024-01",
         version_timestamp=ts,
-        file_extension="csv",
+        nombre_archivo="original.csv",
     )
 
     assert path == (
