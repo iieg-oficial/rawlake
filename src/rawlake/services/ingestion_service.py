@@ -193,7 +193,7 @@ class IngestionService:
             "created_at": datetime.utcnow().isoformat(),
         }
 
-        metadata_path = str(Path(storage_path).parent / "metadata.json")
+        metadata_path = f"{storage_path}.metadata.json"
         with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
 
