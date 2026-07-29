@@ -5,6 +5,8 @@ from pathlib import Path
 import click
 
 from rawlake.core.database import get_db_session
+from rawlake.flows.ingestion_flow import run_ingestion
+from rawlake.manifests.loader import load_all_manifests
 from rawlake.metadata.models import IngestionMode, TriggerType
 from rawlake.metadata.repository import Repository
 from rawlake.services.ingestion_service import IngestionService
@@ -161,26 +163,75 @@ def flows():
 @ingest.command("run")
 @click.option("--dataset", required=True, help="Dataset key (must have a manifest YAML)")
 @click.option("--period", default=None, help="Period label override (e.g., 2026-01)")
-def ingest_run(dataset, period):
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Extract and resolve period_label, but skip DB writes and storage",
+)
+def ingest_run(dataset, period, dry_run):
     """Run ingestion for a dataset using its manifest."""
-    from rawlake.flows.ingestion_flow import run_ingestion
-
     try:
         result = run_ingestion(
             dataset_key=dataset,
             trigger_type=TriggerType.MANUAL_CLI.value,
             period_label=period,
+            dry_run=dry_run,
         )
         for r in result["results"]:
+            period_str = f" [{r.get('period_label', period)}]"
             if r["success"]:
-                if r["is_duplicate"]:
-                    click.echo(f"📋 Duplicate: {r['file']}")
+                if r.get("dry_run"):
+                    click.echo(f"🔍 Would ingest{period_str}: {r['file']}")
+                elif r["is_duplicate"]:
+                    click.echo(f"📋 Duplicate{period_str}: {r['file']}")
                 else:
-                    click.echo(f"✅ Ingested: {r['file']}")
+                    click.echo(f"✅ Ingested{period_str}: {r['file']}")
             else:
                 click.echo(f"❌ Failed: {r['file']} - {r['error']}", err=True)
+        if dry_run:
+            click.echo("(dry-run: no files were written to storage or DB)")
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
+
+
+@cli.group()
+def sources():
+    """List configured product sources."""
+    pass
+
+
+@sources.command("list")
+@click.option(
+    "--type",
+    "extractor_type",
+    default=None,
+    type=click.Choice(["http", "custom"], case_sensitive=False),
+    help="Filter by extractor type",
+)
+def sources_list(extractor_type):
+    """List product sources from configs/products/."""
+    try:
+        manifests = load_all_manifests()
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        return
+
+    if extractor_type:
+        manifests = [m for m in manifests if m.extractor.type == extractor_type]
+
+    if not manifests:
+        click.echo("No sources found.")
+        return
+
+    for m in manifests:
+        schedule = "—"
+        if m.schedule and m.schedule.enabled:
+            schedule = f"{m.schedule.cron} ({m.schedule.timezone})"
+        click.echo(f"• {m.dataset_key} [{m.extractor.type}]  {m.nombre}")
+        click.echo(f"    schedule: {schedule}")
+        if m.extractor.type == "http":
+            click.echo(f"    url: {m.extractor.url}")
 
 
 @flows.command("deploy")
