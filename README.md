@@ -93,9 +93,74 @@ just cli register --dataset <key> --period <label> --file <path>
 # Run ingestion from manifest
 just cli ingest run --dataset <key>
 
+# Run ingestion in dry-run mode (no DB writes, no storage writes)
+just cli ingest run --dataset <key> --dry-run
+
+# List configured product sources
+just cli sources list
+just cli sources list --type http
+
 # Deploy Prefect deployments for all products
 just cli flows deploy
 ```
+
+## Product Manifests
+
+Each product in `configs/products/` declares its extraction source, landing policy, schedule, and storage backend. Validation is performed by Pydantic (`ProductManifest`) before any network or DB call.
+
+### HTTP extractor with ZIP support
+
+For sources that publish compressed archives (e.g. INEGI's monthly ZIPs), the HTTP extractor can decompress on the fly:
+
+```yaml
+extractor:
+  type: http
+  url: "https://www.inegi.org.mx/contenidos/programas/aief/2018/datosabiertos/conjunto_de_datos_imaief_mensual_csv.zip"
+  extract_zip: true           # decompress before returning files
+  inner_path: "conjunto_de_datos"   # path inside the ZIP (subfolder)
+  inner_glob: "*.csv"         # only these are extracted
+  filename_glob: "*.csv"      # final filter on extracted names
+```
+
+When `extract_zip: true`, the HTTP extractor:
+
+1. Downloads the payload.
+2. Detects ZIP via the `PK\x03\x04` magic bytes.
+3. Selects members under `inner_path` matching `inner_glob`.
+4. Extracts them to a temp dir and returns `list[Path]`.
+5. Cleans up the temp dir in `cleanup()`.
+
+If the payload is not a ZIP, the extractor falls back to writing the raw content to a single temp file (so the same manifest can be used during transient source changes).
+
+### `period_label` resolution
+
+Each registered `Archivo` gets a `period_label` derived per file. The strategy is set in the manifest's `landing` block:
+
+| Strategy | Behavior |
+|---|---|
+| `current_month` | All files get `YYYY-MM` of the run's UTC date. |
+| `from_filename` | Parses each filename with `period_label_pattern` (regex with named groups `year`, `month`). Raises if no match. |
+| `from_filename_with_fallback` | Same as `from_filename`, but uses `period_label_fallback` when the pattern doesn't match (logs a warning). |
+| `manual` | Requires an explicit `period_label` arg; not supported for multi-file extractors. |
+
+Default pattern (when `period_label_pattern` is omitted):
+
+```
+(?P<year>\d{4})_(?P<month>\d{2})\.csv$
+```
+
+The `from_filename_with_fallback` strategy is recommended for sources where the filename convention might change in future releases: the manifest declares a fallback policy that keeps the flow working even if the regex stops matching.
+
+Example (IMAIEF):
+
+```yaml
+landing:
+  period_label_strategy: from_filename_with_fallback
+  period_label_pattern: '(?P<year>\d{4})_(?P<month>\d{2})\.csv$'
+  period_label_fallback: current_month
+```
+
+For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.csv` (no date in the name) falls back to the current month.
 
 ## Development
 
