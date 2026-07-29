@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from rawlake.core.database import get_db_session
-from rawlake.metadata.models import Dataset
 from rawlake.metadata.repository import Repository
 from rawlake.schemas.product_manifest import ProductManifest
 
 
-def sync_dataset_from_manifest(manifest: ProductManifest) -> Dataset:
+@dataclass(frozen=True)
+class SyncedDataset:
+    id: int
+    nombre_corto: str
+
+
+def sync_dataset_from_manifest(manifest: ProductManifest) -> SyncedDataset:
     with get_db_session() as session:
         repo = Repository(session)
         dataset = repo.get_dataset_by_key(manifest.dataset_key)
@@ -31,4 +38,5 @@ def sync_dataset_from_manifest(manifest: ProductManifest) -> Dataset:
 
         session.flush()
         session.refresh(dataset)
-        return dataset
+        synced = SyncedDataset(id=dataset.id, nombre_corto=dataset.nombre_corto)
+    return synced
