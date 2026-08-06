@@ -1,32 +1,55 @@
-from prefect.deployments import Deployment
+"""Generate prefect.yaml from product manifests."""
+
+from pathlib import Path
+
+import yaml
 
 from rawlake.core.logging import Logger
-from rawlake.flows.ingestion_flow import run_ingestion
 from rawlake.manifests.loader import load_all_manifests
 
 logger = Logger.get("deploy")
 
+PREFECT_YAML_PATH = Path("prefect.yaml")
 
-def deploy_all() -> int:
+
+def generate_prefect_yaml() -> int:
     manifests = load_all_manifests()
-    count = 0
+    deployments = []
 
-    for manifest in manifests:
-        if manifest.schedule is None or not manifest.schedule.enabled:
-            logger.info(f"Skipping {manifest.dataset_key}: no schedule or disabled")
+    for m in manifests:
+        if m.schedule is None or not m.schedule.enabled:
+            logger.info(f"Skipping {m.dataset_key}: no schedule or disabled")
             continue
 
-        deployment = Deployment.build_from_flow(
-            flow=run_ingestion,
-            name=f"ingest-{manifest.dataset_key}",
-            parameters={
-                "dataset_key": manifest.dataset_key,
-                "trigger_type": "scheduled",
-            },
-            schedule={"cron": manifest.schedule.cron, "timezone": manifest.schedule.timezone},
+        deployments.append(
+            {
+                "name": f"ingest-{m.dataset_key}",
+                "entrypoint": "src/rawlake/flows/ingestion_flow.py:run_ingestion",
+                "work_pool": {"name": "rawlake-worker", "work_queue_name": "default"},
+                "parameters": {
+                    "dataset_key": m.dataset_key,
+                    "trigger_type": "scheduled",
+                },
+                "schedule": {
+                    "cron": m.schedule.cron,
+                    "timezone": m.schedule.timezone,
+                },
+            }
         )
-        deployment.apply()
-        logger.info(f"Deployed: {manifest.dataset_key} ({manifest.schedule.cron})")
-        count += 1
+        logger.info(f"Added deployment: ingest-{m.dataset_key}")
 
-    return count
+    config = {
+        "prefect_version": "3.x",
+        "deployments": deployments,
+    }
+
+    with open(PREFECT_YAML_PATH, "w") as f:
+        yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Generated {PREFECT_YAML_PATH} with {len(deployments)} deployment(s)")
+    return len(deployments)
+
+
+def deploy_all() -> int:
+    """For backward compatibility with CLI."""
+    return generate_prefect_yaml()

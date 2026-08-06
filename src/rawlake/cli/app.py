@@ -236,14 +236,15 @@ def sources_list(extractor_type):
 
 @flows.command("deploy")
 def flows_deploy():
-    """Deploy Prefect deployments for all product manifests."""
-    from rawlake.flows.deploy import deploy_all
+    """Generate prefect.yaml and deploy Prefect deployments for all product manifests."""
+    from rawlake.flows.deploy import generate_prefect_yaml
 
     try:
-        count = deploy_all()
-        click.echo(f"✅ Deployed {count} deployment(s)")
+        count = generate_prefect_yaml()
+        click.echo(f"Generated prefect.yaml with {count} deployment(s)")
+        click.echo("Run 'prefect deploy' to apply deployments")
     except Exception as e:
-        click.echo(f"Error deploying: {e}", err=True)
+        click.echo(f"Error: {e}", err=True)
 
 
 if __name__ == "__main__":

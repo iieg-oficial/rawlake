@@ -73,6 +73,10 @@ just db-up
 
 # Run migrations
 just migrate
+
+# Create and configure storage root (default: /mnt/datalake)
+sudo mkdir -p /mnt/datalake
+sudo chown $USER /mnt/datalake  # or appropriate user for Prefect worker
 ```
 
 ## CLI
@@ -176,6 +180,51 @@ For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.
 | `just migrate` | Run alembic migrations |
 | `just revision <msg>` | Create new alembic revision |
 | `just cli <args>` | Run rawlake CLI |
+
+## Prefect
+
+### Start Prefect Worker
+
+The Prefect worker runs the ingestion flows:
+
+```bash
+# Start a worker in the background
+prefect worker start -p rawlake-worker -t process
+
+# Or run via nohup/make it a systemd service
+nohup prefect worker start -p rawlake-worker -t process > prefect-worker.log 2>&1 &
+```
+
+### Prefect UI
+
+The Prefect UI is available at `http://localhost:4200` by default. To start it:
+
+```bash
+prefect server start
+```
+
+### Run a Flow from the UI
+
+1. Open `http://localhost:4200`
+2. Navigate to **Flows** → `run_ingestion`
+3. Click **Run** → **Custom Run**
+4. Enter the `dataset_key` parameter (e.g., `inegi_imaief`)
+5. Optionally set `dry_run: true` for testing
+6. Click **Run**
+
+### Deploy Flows
+
+To create or update Prefect deployments for all products:
+
+```bash
+just cli flows deploy
+```
+
+This creates deployments that can be triggered from the UI or via API.
+
+### Storage Root Validation
+
+The `run_ingestion` flow automatically ensures the `RAWLAKE_LOCAL_ROOT` directory exists and is writable before processing files. If it doesn't exist, it is created with `mkdir -p`.
 
 ## Environment Variables
 
