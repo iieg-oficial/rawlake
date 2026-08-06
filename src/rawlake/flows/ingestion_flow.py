@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import os
 import re
 from datetime import UTC, datetime
 from pathlib import Path
 
 from prefect import flow, get_run_logger, task
 
+from rawlake.core.config import config
 from rawlake.core.database import get_db_session
 from rawlake.core.exceptions import DatasetNotFoundError
 from rawlake.core.logging import Logger
@@ -67,6 +69,16 @@ def _resolve_period_labels(
                 f"with pattern {pattern!r}"
             )
     return results
+
+
+@task(name="ensure_storage_root")
+def task_ensure_storage_root() -> Path:
+    root = Path(config.RAWLAKE_LOCAL_ROOT)
+    if not root.exists():
+        root.mkdir(parents=True, exist_ok=True)
+    if not os.access(root, os.W_OK):
+        raise PermissionError(f"Storage root {root} is not writable")
+    return root
 
 
 @task(name="load_manifest")
@@ -146,6 +158,9 @@ def run_ingestion(
 ) -> dict:
     prefect_logger = get_run_logger()
     prefect_logger.info(f"Starting ingestion for dataset: {dataset_key} (dry_run={dry_run})")
+
+    storage_root = task_ensure_storage_root()
+    prefect_logger.info(f"Storage root ready: {storage_root}")
 
     manifest = task_load_manifest(dataset_key)
     prefect_logger.info(f"Manifest loaded: {manifest.dataset_key}")
