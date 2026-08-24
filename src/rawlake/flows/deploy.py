@@ -25,6 +25,7 @@ def generate_prefect_yaml() -> int:
             {
                 "name": f"ingest-{m.dataset_key}",
                 "entrypoint": "src/rawlake/flows/ingestion_flow.py:run_ingestion",
+                "path": "/app",
                 "work_pool": {"name": "rawlake-worker", "work_queue_name": "default"},
                 "parameters": {
                     "dataset_key": m.dataset_key,

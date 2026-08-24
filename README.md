@@ -30,7 +30,8 @@ rawlake/
 │   └── utils/            # Utilities
 ├── migrations/           # Alembic migrations
 ├── tests/                # Test suite
-├── docker-compose.yml    # Local PostgreSQL
+├── docker-compose.yml    # Local PostgreSQL and Prefect services
+├── Dockerfile            # RawLake image used by Prefect
 ├── justfile              # Development tasks
 └── pyproject.toml        # Project configuration
 ```
@@ -67,9 +68,8 @@ Each product is declared in a YAML manifest under `configs/products/`:
 ```bash
 # Install dependencies and pre-commit hooks
 just setup
-
-# Start local PostgreSQL
-just db-up
+# Start local PostgreSQL, Prefect API/UI, and worker
+docker compose up -d --build
 
 # Run migrations
 just migrate
@@ -182,26 +182,22 @@ For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.
 | `just cli <args>` | Run rawlake CLI |
 
 ## Prefect
-
-### Start Prefect Worker
-
-The Prefect worker runs the ingestion flows:
-
-```bash
-# Start a worker in the background
-prefect worker start -p rawlake-worker -t process
-
-# Or run via nohup/make it a systemd service
-nohup prefect worker start -p rawlake-worker -t process > prefect-worker.log 2>&1 &
-```
-
-### Prefect UI
-
-The Prefect UI is available at `http://localhost:4200` by default. To start it:
+Prefect runs as part of the local Compose stack. `prefect-server` provides the
+API and UI, and `prefect-worker` executes flows from the `rawlake-worker`
+process pool. Both use the same PostgreSQL instance as RawLake; Prefect manages
+its own tables there.
 
 ```bash
-prefect server start
+# Build the RawLake image and start PostgreSQL, Prefect server, and worker
+docker compose up -d --build
+
+# Follow service logs
+docker compose logs -f prefect-server prefect-worker
 ```
+
+The UI is available at `http://localhost:4200`. See
+[`docs/prefect.md`](docs/prefect.md) for deployment, execution, and
+troubleshooting instructions.
 
 ### Run a Flow from the UI
 
@@ -217,10 +213,16 @@ prefect server start
 To create or update Prefect deployments for all products:
 
 ```bash
+# Point the local Prefect CLI at the Compose server
+export PREFECT_API_URL=http://localhost:4200/api
+
+# Generate the deployment manifest and publish it
 just cli flows deploy
+prefect deploy --all
 ```
 
-This creates deployments that can be triggered from the UI or via API.
+Deployments run inside the container image at `/app` and can be triggered from
+the UI or via API.
 
 ### Storage Root Validation
 

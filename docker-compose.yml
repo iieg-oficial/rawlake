@@ -9,6 +9,53 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rawlake -d rawlake"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  prefect-server:
+    build:
+      context: .
+    command: prefect server start --host 0.0.0.0
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://rawlake:rawlake@postgres:5432/rawlake
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_SERVER_UI_API_URL: http://localhost:4200/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4200:4200"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:4200/api/health', timeout=5)",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
+
+  prefect-worker:
+    build:
+      context: .
+    command: prefect worker start --pool rawlake-worker --type process
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      DB_HOST: postgres
+      RAWLAKE_LOCAL_ROOT: /mnt/datalake
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    volumes:
+      - ${RAWLAKE_LOCAL_ROOT:-/mnt/datalake}:/mnt/datalake
+    restart: unless-stopped
 
 volumes:
   postgres_data:
