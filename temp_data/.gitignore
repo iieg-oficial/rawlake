@@ -1,0 +1,4 @@
+# Keep this directory as the local RawLake storage root, but never version
+# generated raw assets or their metadata.
+*
+!.gitignore
