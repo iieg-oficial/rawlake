@@ -1,0 +1,33 @@
+name: Quality and security
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pre-commit
+        run: pipx install pre-commit
+      - name: Run repository hooks
+        run: |
+          git add --all
+          pre-commit run --all-files --show-diff-on-failure
+      - name: Validate Compose with documented environment
+        run: |
+          cp .env.example .env
+          docker compose --env-file .env.example config --quiet
