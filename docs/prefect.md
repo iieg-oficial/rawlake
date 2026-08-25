@@ -1,5 +1,14 @@
 # Prefect local con Docker Compose
 
+## Configuración
+
+Antes de iniciar los servicios, cree el archivo de configuración local y ajuste
+las credenciales, puertos o ruta de almacenamiento si el entorno lo requiere:
+
+```bash
+cp .env.example .env
+```
+
 ## Arquitectura
 
 `docker compose up -d --build` inicia `postgres`, `prefect-server` y
@@ -31,7 +40,10 @@ escribir en esa ruta.
 Cuando el servidor y worker estén saludables, publique los despliegues:
 
 ```bash
-export PREFECT_API_URL=http://localhost:4200/api
+set -a
+source .env
+set +a
+export PREFECT_API_URL="$PREFECT_SERVER_UI_API_URL"
 just cli flows deploy
 prefect deploy --all
 ```
