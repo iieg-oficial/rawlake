@@ -5,7 +5,6 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 _REPO_ROOT = Path(__file__).parents[3]
 
 
