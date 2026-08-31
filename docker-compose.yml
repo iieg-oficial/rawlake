@@ -77,12 +77,12 @@ services:
       DB_HOST: postgres
       DB_PORT: "5432"
       RAWLAKE_CONFIGS_DIR: /app/configs
-      RAWLAKE_LOCAL_ROOT: ${RAWLAKE_LOCAL_ROOT:-/mnt/datalake}
+      RAWLAKE_LOCAL_ROOT: ${RAWLAKE_LOCAL_ROOT:-./data}
     depends_on:
       prefect-server:
         condition: service_healthy
     volumes:
-      - ${RAWLAKE_LOCAL_ROOT:-/mnt/datalake}:/mnt/datalake
+      - ${RAWLAKE_LOCAL_ROOT:-./data}:/mnt/datalake
     restart: unless-stopped
 
 volumes:

@@ -18,6 +18,14 @@ def test_config_ignores_variables_owned_by_other_services(tmp_path: Path) -> Non
 
 def test_configs_dir_defaults_to_the_repository_directory() -> None:
     """The default only holds for a checkout; containers override it with RAWLAKE_CONFIGS_DIR."""
-    configs_dir = Path(Config().RAWLAKE_CONFIGS_DIR)
+    configs_dir = Path(Config(_env_file=None).RAWLAKE_CONFIGS_DIR)
 
     assert (configs_dir / "products").is_dir()
+
+
+def test_local_root_defaults_inside_the_repository() -> None:
+    """The default must not require root, and must not depend on the current working directory."""
+    local_root = Path(Config(_env_file=None).RAWLAKE_LOCAL_ROOT)
+
+    assert local_root.is_absolute()
+    assert local_root.name == "data"

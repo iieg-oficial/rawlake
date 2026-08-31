@@ -44,9 +44,10 @@ docker compose down
 ```
 
 `RAWLAKE_LOCAL_ROOT` se monta en el worker como `/mnt/datalake`. Su valor
-predeterminado es `/mnt/datalake`; cámbielo antes de arrancar Compose si los
-archivos crudos deben vivir en otra ruta del anfitrión. Docker debe poder
-escribir en esa ruta.
+predeterminado es `./data`, dentro del repositorio y fuera del control de
+versiones, para que el arranque local no requiera permisos de root. En entornos
+compartidos use una ruta absoluta fuera del repositorio, y cámbiela antes de
+arrancar Compose. Docker debe poder escribir en esa ruta.
 
 ## Publicar y ejecutar despliegues
 

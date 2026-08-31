@@ -22,7 +22,7 @@ class Config(BaseSettings):
     DB_PORT: str = Field(default="5432")
     DB_NAME: str = Field(default="rawlake")
     LOG_LEVEL: str = Field(default="INFO")
-    RAWLAKE_LOCAL_ROOT: str = Field(default="/mnt/datalake")
+    RAWLAKE_LOCAL_ROOT: str = Field(default=str(_REPO_ROOT / "data"))
     RAWLAKE_CONFIGS_DIR: str = Field(default=str(_REPO_ROOT / "configs"))
 
     @property

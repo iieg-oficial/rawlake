@@ -68,16 +68,20 @@ Each product is declared in a YAML manifest under `configs/products/`:
 ```bash
 # Install dependencies and pre-commit hooks
 just setup
-# Start local PostgreSQL, Prefect API/UI, and worker
+
+# Configure the local environment
+cp .env.example .env
+
+# Start local PostgreSQL, Prefect API/UI, worker, and deployments
 docker compose up -d --build
 
 # Run migrations
 just migrate
-
-# Create and configure storage root (default: /mnt/datalake)
-sudo mkdir -p /mnt/datalake
-sudo chown $USER /mnt/datalake  # or appropriate user for Prefect worker
 ```
+
+Raw files land in `./data`, which is git-ignored and created on the first run,
+so no root permissions are needed. Point `RAWLAKE_LOCAL_ROOT` at an absolute
+path outside the repository for shared environments.
 
 ## CLI
 
