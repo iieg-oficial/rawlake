@@ -16,7 +16,12 @@ cp .env.example .env
 [http://localhost:4200](http://localhost:4200); el worker atiende el work pool
 de tipo `process` llamado `rawlake-worker` y ejecuta `run_ingestion`.
 
-PostgreSQL conserva los metadatos de RawLake y las tablas internas de Prefect.
+Ambos sistemas comparten la instancia de PostgreSQL pero **no** la base de
+datos: RawLake usa `DB_NAME` y Prefect usa `PREFECT_DB_NAME`. La separación es
+obligatoria porque los dos ejecutan migraciones de Alembic sobre la tabla
+`alembic_version`, y compartirla deja al servidor de Prefect sin poder crear sus
+tablas. `scripts/init-prefect-db.sh` crea esa base al inicializar el volumen.
+
 El worker usa el hostname interno `postgres`, mientras que la CLI de RawLake en
 el anfitrión conserva `localhost` como predeterminado. La imagen contiene el
 paquete RawLake y los manifiestos; los despliegues usan `/app` como ruta.
@@ -60,5 +65,9 @@ una corrida personalizada. Use `dry_run: true` para una prueba segura.
 - Si una corrida queda pendiente, confirme que `rawlake-worker` está listo y
   revise `docker compose logs prefect-worker`.
 - Si falla la escritura, compruebe `RAWLAKE_LOCAL_ROOT` y los permisos de Docker.
+- Si el servidor no llega a estado saludable con un error de Alembic sobre
+  tablas inexistentes, la base de Prefect no existe o se está compartiendo con
+  la de RawLake. En un entorno local desechable, `docker compose down -v`
+  recrea el volumen y ejecuta `scripts/init-prefect-db.sh`.
 - Tras cambiar código, dependencias o manifiestos, ejecute
   `docker compose up -d --build` antes de volver a publicar despliegues.

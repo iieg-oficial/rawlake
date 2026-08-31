@@ -184,8 +184,9 @@ For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.
 ## Prefect
 Prefect runs as part of the local Compose stack. `prefect-server` provides the
 API and UI, and `prefect-worker` executes flows from the `rawlake-worker`
-process pool. Both use the same PostgreSQL instance as RawLake; Prefect manages
-its own tables there.
+process pool. They share the PostgreSQL instance with RawLake but use a separate
+database (`PREFECT_DB_NAME`), because both run Alembic migrations against the
+same `alembic_version` table.
 
 ```bash
 # Build the RawLake image and start PostgreSQL, Prefect server, and worker
