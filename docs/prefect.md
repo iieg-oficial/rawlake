@@ -11,8 +11,8 @@ cp .env.example .env
 
 ## Arquitectura
 
-`docker compose up -d --build` inicia `postgres`, `prefect-server` y
-`prefect-worker`. El servidor publica la API y la interfaz en
+`docker compose up -d --build` inicia `postgres`, `prefect-server`,
+`prefect-worker` y `prefect-deploy`. El servidor publica la API y la interfaz en
 [http://localhost:4200](http://localhost:4200); el worker atiende el work pool
 de tipo `process` llamado `rawlake-worker` y ejecuta `run_ingestion`.
 
@@ -24,7 +24,15 @@ tablas. `scripts/init-prefect-db.sh` crea esa base al inicializar el volumen.
 
 El worker usa el hostname interno `postgres`, mientras que la CLI de RawLake en
 el anfitrión conserva `localhost` como predeterminado. La imagen contiene el
-paquete RawLake y los manifiestos; los despliegues usan `/app` como ruta.
+paquete RawLake y los manifiestos; los despliegues usan `/app` como ruta y los
+contenedores leen los manifiestos desde `RAWLAKE_CONFIGS_DIR`.
+
+`prefect-deploy` es un servicio de un solo uso: espera a que el servidor esté
+saludable, genera `prefect.yaml` a partir de los manifiestos, publica los
+despliegues y termina. Es idempotente, así que vuelve a correr en cada
+`docker compose up` sin efectos adicionales. Va como servicio aparte y no dentro
+del arranque del worker para que un fallo al publicar no impida que el worker
+atienda corridas.
 
 ## Inicio y detención
 
@@ -42,19 +50,25 @@ escribir en esa ruta.
 
 ## Publicar y ejecutar despliegues
 
-Cuando el servidor y worker estén saludables, publique los despliegues:
+No hay pasos manuales: `docker compose up -d --build` publica los despliegues a
+través del servicio `prefect-deploy`. Para revisar el resultado:
 
 ```bash
-set -a
-source .env
-set +a
-export PREFECT_API_URL="$PREFECT_SERVER_UI_API_URL"
-just cli flows deploy
-prefect deploy --all
+docker compose logs prefect-deploy
+```
+
+Para volver a publicar sin reiniciar el resto de los servicios, por ejemplo tras
+editar un manifiesto:
+
+```bash
+docker compose up -d --build prefect-deploy
 ```
 
 El primer arranque del worker crea `rawlake-worker` si no existe. Los manifiestos
-con `schedule.enabled: true` crean corridas según su cron y zona horaria.
+con `schedule.enabled: true` crean corridas según su cron y zona horaria. Los
+manifiestos con `schedule.enabled: false` no generan despliegue, así que esos
+productos no aparecen en la interfaz ni siquiera para corridas manuales; use
+`just cli ingest run --dataset <dataset_key>` para ejecutarlos.
 
 Para una corrida manual, abra la UI, seleccione `ingest-<dataset_key>` y cree
 una corrida personalizada. Use `dry_run: true` para una prueba segura.
@@ -69,5 +83,7 @@ una corrida personalizada. Use `dry_run: true` para una prueba segura.
   tablas inexistentes, la base de Prefect no existe o se está compartiendo con
   la de RawLake. En un entorno local desechable, `docker compose down -v`
   recrea el volumen y ejecuta `scripts/init-prefect-db.sh`.
+- Si un despliegue no aparece en la interfaz, revise
+  `docker compose logs prefect-deploy`.
 - Tras cambiar código, dependencias o manifiestos, ejecute
-  `docker compose up -d --build` antes de volver a publicar despliegues.
+  `docker compose up -d --build` para reconstruir la imagen y volver a publicar.

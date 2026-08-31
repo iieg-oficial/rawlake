@@ -183,13 +183,14 @@ For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.
 
 ## Prefect
 Prefect runs as part of the local Compose stack. `prefect-server` provides the
-API and UI, and `prefect-worker` executes flows from the `rawlake-worker`
-process pool. They share the PostgreSQL instance with RawLake but use a separate
-database (`PREFECT_DB_NAME`), because both run Alembic migrations against the
-same `alembic_version` table.
+API and UI, `prefect-worker` executes flows from the `rawlake-worker` process
+pool, and the one-shot `prefect-deploy` service publishes the deployments. They
+share the PostgreSQL instance with RawLake but use a separate database
+(`PREFECT_DB_NAME`), because both run Alembic migrations against the same
+`alembic_version` table.
 
 ```bash
-# Build the RawLake image and start PostgreSQL, Prefect server, and worker
+# Build the RawLake image and start the full stack
 docker compose up -d --build
 
 # Follow service logs
@@ -211,15 +212,17 @@ troubleshooting instructions.
 
 ### Deploy Flows
 
-To create or update Prefect deployments for all products:
+Deployments are published automatically by the `prefect-deploy` service on
+`docker compose up`. It waits for the server to become healthy, generates the
+deployment manifest from the product manifests, publishes it, and exits. The
+step is idempotent, so it runs again on every startup without side effects.
 
 ```bash
-# Point the local Prefect CLI at the Compose server
-export PREFECT_API_URL=http://localhost:4200/api
+# Republish after editing a manifest, without restarting the other services
+docker compose up -d --build prefect-deploy
 
-# Generate the deployment manifest and publish it
-just cli flows deploy
-prefect deploy --all
+# Inspect the result
+docker compose logs prefect-deploy
 ```
 
 Deployments run inside the container image at `/app` and can be triggered from

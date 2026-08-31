@@ -45,13 +45,38 @@ services:
       retries: 8
       start_period: 30s
 
+  prefect-deploy:
+    build:
+      context: .
+    working_dir: /app
+    command: sh -c "rawlake flows deploy && prefect deploy --all"
+    env_file: .env
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      # DB_PORT in .env is the port published on the host; inside the network
+      # Postgres always listens on 5432.
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      RAWLAKE_CONFIGS_DIR: /app/configs
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      prefect-worker:
+        condition: service_started
+    restart: "no"
+
   prefect-worker:
     build:
       context: .
     command: prefect worker start --pool rawlake-worker --type process
+    env_file: .env
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
+      # DB_PORT in .env is the port published on the host; inside the network
+      # Postgres always listens on 5432.
       DB_HOST: postgres
+      DB_PORT: "5432"
+      RAWLAKE_CONFIGS_DIR: /app/configs
       RAWLAKE_LOCAL_ROOT: ${RAWLAKE_LOCAL_ROOT:-/mnt/datalake}
     depends_on:
       prefect-server:
