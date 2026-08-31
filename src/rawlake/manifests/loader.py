@@ -5,10 +5,11 @@ from pathlib import Path
 import yaml
 from pydantic import ValidationError
 
+from rawlake.core.config import config
 from rawlake.core.exceptions import ManifestError
 from rawlake.schemas.product_manifest import ProductManifest
 
-_PRODUCTS_DIR = Path(__file__).parent.parent.parent.parent / "configs" / "products"
+_PRODUCTS_DIR = Path(config.RAWLAKE_CONFIGS_DIR) / "products"
 
 
 def load_manifest(dataset_key: str) -> ProductManifest:

@@ -14,3 +14,10 @@ def test_config_ignores_variables_owned_by_other_services(tmp_path: Path) -> Non
     config = Config(_env_file=env_file)
 
     assert config.DB_USER == "rawlake"
+
+
+def test_configs_dir_defaults_to_the_repository_directory() -> None:
+    """The default only holds for a checkout; containers override it with RAWLAKE_CONFIGS_DIR."""
+    configs_dir = Path(Config().RAWLAKE_CONFIGS_DIR)
+
+    assert (configs_dir / "products").is_dir()

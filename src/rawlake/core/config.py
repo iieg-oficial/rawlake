@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+_REPO_ROOT = Path(__file__).parents[3]
 
 
 class Config(BaseSettings):
@@ -19,6 +24,7 @@ class Config(BaseSettings):
     DB_NAME: str = Field(default="rawlake")
     LOG_LEVEL: str = Field(default="INFO")
     RAWLAKE_LOCAL_ROOT: str = Field(default="/mnt/datalake")
+    RAWLAKE_CONFIGS_DIR: str = Field(default=str(_REPO_ROOT / "configs"))
 
     @property
     def database_url(self) -> str:
