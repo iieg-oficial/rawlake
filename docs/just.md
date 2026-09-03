@@ -81,14 +81,12 @@ cualquier discrepancia, la salida de `just` manda.
 | `just ps` | Muestra el estado de cada servicio, incluidos los que terminaron. |
 | `just logs [servicio]` | Sigue los logs de un servicio, o de todos si no se indica ninguno. |
 | `just deploy` | Reconstruye la imagen y vuelve a publicar los deployments de Prefect. |
-| `just ingest <dataset> [dry_run]` | Dispara una corrida de ingesta a través del deployment de Prefect. |
-
-`just ingest` usa `dry_run=true` de forma predeterminada, para que una prueba
-accidental no escriba en disco ni en la base:
+| `just ingest <dataset>` | Ingesta un dataset por su deployment de Prefect, escribiendo en almacenamiento y base de datos. |
+| `just ingest-dry <dataset>` | Extrae y resuelve periodos sin escribir nada. |
 
 ```bash
-just ingest inegi_imaief          # corrida seca
-just ingest inegi_imaief false    # corrida real
+just ingest-dry inegi_imaief    # prueba segura
+just ingest inegi_imaief        # corrida real
 ```
 
 ## CLI

@@ -75,11 +75,17 @@ logs service="":
 deploy:
     docker compose up -d --build prefect-deploy
 
-# Trigger an ingestion run through the Prefect deployment.
+# Ingest a dataset through its Prefect deployment, writing to storage and the database.
 [group('compose')]
-ingest dataset dry_run="true":
+ingest dataset:
     docker compose exec prefect-worker \
-        prefect deployment run 'run_ingestion/ingest-{{dataset}}' --param dry_run={{dry_run}}
+        prefect deployment run 'run_ingestion/ingest-{{dataset}}' --param dry_run=false
+
+# Extract a dataset and resolve its periods without writing anything.
+[group('compose')]
+ingest-dry dataset:
+    docker compose exec prefect-worker \
+        prefect deployment run 'run_ingestion/ingest-{{dataset}}' --param dry_run=true
 
 # Run the RawLake CLI on the host.
 [group('cli')]
