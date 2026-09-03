@@ -37,6 +37,7 @@ hooks:
 
 # Apply pending Alembic migrations.
 [group('base de datos')]
+[confirm("Esto modifica el esquema de la base de datos. ¿Continuar? [y/N]")]
 migrate:
     uv run alembic upgrade head
 
@@ -57,6 +58,7 @@ up:
 
 # Stop the stack, keeping the database volume.
 [group('compose')]
+[confirm("Esto detiene todos los servicios. ¿Continuar? [y/N]")]
 down:
     docker compose down
 
@@ -77,6 +79,7 @@ deploy:
 
 # Ingest a dataset through its Prefect deployment, writing to storage and the database.
 [group('compose')]
+[confirm("Esto escribe en el almacenamiento y en la base de datos. ¿Continuar? [y/N]")]
 ingest dataset:
     docker compose exec prefect-worker \
         prefect deployment run 'run_ingestion/ingest-{{dataset}}' --param dry_run=false

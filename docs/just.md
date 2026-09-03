@@ -68,20 +68,37 @@ cualquier discrepancia, la salida de `just` manda.
 
 | Comando | Descripción |
 |---|---|
-| `just migrate` | Aplica las migraciones pendientes de Alembic. |
+| `just migrate` | Aplica las migraciones pendientes de Alembic. Pide confirmación. |
 | `just revision <mensaje>` | Autogenera una migración a partir de los modelos actuales. |
 | `just psql` | Abre una sesión de psql contra la base de RawLake. |
+
+## Comandos que piden confirmación
+
+Tres recetas cambian estado y preguntan antes de ejecutarse: `migrate`, `down`
+e `ingest`. Responda `y` para continuar; cualquier otra tecla cancela sin
+ejecutar nada.
+
+```
+$ just ingest inegi_imaief
+Esto escribe en el almacenamiento y en la base de datos. ¿Continuar? [y/N]
+```
+
+Para automatizarlas en un script o en CI, canalice la respuesta:
+
+```bash
+echo y | just migrate
+```
 
 ## Compose
 
 | Comando | Descripción |
 |---|---|
 | `just up` | Construye las imágenes y levanta toda la pila en segundo plano. |
-| `just down` | Detiene la pila conservando el volumen de la base de datos. |
+| `just down` | Detiene la pila conservando el volumen de la base de datos. Pide confirmación. |
 | `just ps` | Muestra el estado de cada servicio, incluidos los que terminaron. |
 | `just logs [servicio]` | Sigue los logs de un servicio, o de todos si no se indica ninguno. |
 | `just deploy` | Reconstruye la imagen y vuelve a publicar los deployments de Prefect. |
-| `just ingest <dataset>` | Ingesta un dataset por su deployment de Prefect, escribiendo en almacenamiento y base de datos. |
+| `just ingest <dataset>` | Ingesta un dataset por su deployment de Prefect, escribiendo en almacenamiento y base de datos. Pide confirmación. |
 | `just ingest-dry <dataset>` | Extrae y resuelve periodos sin escribir nada. |
 
 ```bash
