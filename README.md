@@ -107,9 +107,6 @@ just cli ingest run --dataset <key> --dry-run
 # List configured product sources
 just cli sources list
 just cli sources list --type http
-
-# Deploy Prefect deployments for all products
-just cli flows deploy
 ```
 
 ## Product Manifests
@@ -172,18 +169,15 @@ For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.
 
 ## Development
 
-| Command | Description |
-|---------|-------------|
-| `just setup` | Install dependencies and pre-commit hooks |
-| `just install` | Install dependencies with uv sync |
-| `just lint` | Run ruff linter |
-| `just format` | Format code with ruff |
-| `just test` | Run pytest |
-| `just db-up` | Start PostgreSQL container |
-| `just db-down` | Stop PostgreSQL container |
-| `just migrate` | Run alembic migrations |
-| `just revision <msg>` | Create new alembic revision |
-| `just cli <args>` | Run rawlake CLI |
+Every task is exposed through `just`. Run it with no arguments to list the
+available recipes, grouped by area:
+
+```bash
+just
+```
+
+See [`docs/just.md`](docs/just.md) for the installation guide and the full
+command reference.
 
 ## Prefect
 Prefect runs as part of the local Compose stack. `prefect-server` provides the

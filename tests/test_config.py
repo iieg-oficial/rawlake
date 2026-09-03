@@ -23,8 +23,9 @@ def test_configs_dir_defaults_to_the_repository_directory() -> None:
     assert (configs_dir / "products").is_dir()
 
 
-def test_local_root_defaults_inside_the_repository() -> None:
+def test_local_root_defaults_inside_the_repository(monkeypatch) -> None:
     """The default must not require root, and must not depend on the current working directory."""
+    monkeypatch.delenv("RAWLAKE_LOCAL_ROOT", raising=False)
     local_root = Path(Config(_env_file=None).RAWLAKE_LOCAL_ROOT)
 
     assert local_root.is_absolute()
