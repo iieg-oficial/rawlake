@@ -107,9 +107,6 @@ just cli ingest run --dataset <key> --dry-run
 # List configured product sources
 just cli sources list
 just cli sources list --type http
-
-# Deploy Prefect deployments for all products
-just cli flows deploy
 ```
 
 ## Product Manifests
@@ -189,6 +186,15 @@ cover formatting, YAML, private keys, secret scanning, and the contract between
 | `just migrate` | Run alembic migrations |
 | `just revision <msg>` | Create new alembic revision |
 | `just cli <args>` | Run rawlake CLI |
+Every task is exposed through `just`. Run it with no arguments to list the
+available recipes, grouped by area:
+
+```bash
+just
+```
+
+See [`docs/just.md`](docs/just.md) for the installation guide and the full
+command reference.
 
 ## Prefect
 Prefect runs as part of the local Compose stack. `prefect-server` provides the
