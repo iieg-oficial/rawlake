@@ -172,6 +172,11 @@ For IMAIEF, the 44 CSVs match the pattern and resolve to `2026-03`; the `indice.
 
 ## Development
 
+Code quality is enforced by pre-commit hooks, installed by `just setup`. They
+cover formatting, YAML, private keys, secret scanning, and the contract between
+`docker-compose.yml` and `.env.example`. Run them over the whole repository with
+`uv run pre-commit run --all-files`.
+
 | Command | Description |
 |---------|-------------|
 | `just setup` | Install dependencies and pre-commit hooks |
