@@ -1,5 +1,6 @@
 """Clase base para todos los extractores de datos."""
 
+import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -22,6 +23,7 @@ class BaseExtractor(ABC):
     def __init__(self, dataset: Dataset, config: dict):
         self.dataset = dataset
         self.config = config
+        self._temp_dirs: list[Path] = []
 
     @abstractmethod
     def extract(self, period_label: str | None = None) -> list[Path]:
@@ -55,15 +57,34 @@ class BaseExtractor(ABC):
         """
         pass
 
+    def register_temp_dir(self, path: Path) -> Path:
+        """Registrar un directorio temporal para limpieza automática.
+
+        Subclases que crean directorios vía ``tempfile.mkdtemp()`` deben
+        pasarlos a este método para que ``cleanup()`` los elimine junto
+        con los archivos extraídos.
+
+        Args:
+            path: Ruta al directorio temporal a registrar.
+
+        Returns:
+            La misma ruta recibida, para permitir encadenamiento.
+        """
+        self._temp_dirs.append(path)
+        return path
+
     def cleanup(self, file_paths: list[Path]) -> None:
         """
-        Limpiar archivos temporales después de la extracción.
+        Limpiar archivos temporales y directorios registrados después de la extracción.
 
         Args:
             file_paths: Lista de paths a limpiar
         """
         for path in file_paths:
             path.unlink(missing_ok=True)
+        for d in self._temp_dirs:
+            shutil.rmtree(d, ignore_errors=True)
+        self._temp_dirs = []
 
     def run(self, period_label: str | None = None) -> list[Path]:
         """

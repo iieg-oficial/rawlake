@@ -1,20 +1,26 @@
 dataset_key: inegi_imaief
-nombre: "Indicador Mensual de la Actividad Económica de Jalisco"
+nombre: "Indicador Mensual de la Actividad Industrial por Entidad Federativa"
 fuente: INEGI
-descripcion: "Serie mensual del IMAIEF para Jalisco"
+descripcion: "Serie mensual del IMAIEF desagregada por actividad económica y entidad federativa. Incluye un archivo por actividad (10) y un archivo por entidad federativa (33), además de un indice.csv que mapea cada archivo a su jerarquía."
 periodicidad: mensual
 desagregacion_geografica: estatal
-inicio_cobertura_temporal: "1993-01"
+inicio_cobertura_temporal: "2003-01"
 
 extractor:
   type: http
-  url: "https://www.inegi.org.mx/contenidos/programas/imaief/prod_serv/contenidos/imaief_jal.csv"
+  url: "https://www.inegi.org.mx/contenidos/programas/aief/2018/datosabiertos/conjunto_de_datos_imaief_mensual_csv.zip"
   method: GET
   headers: {}
   timeout_seconds: 60
+  extract_zip: true
+  inner_path: "conjunto_de_datos"
+  inner_glob: "*.csv"
+  filename_glob: "*.csv"
 
 landing:
-  period_label_strategy: current_month
+  period_label_strategy: from_filename_with_fallback
+  period_label_pattern: '(?P<year>\d{4})_(?P<month>\d{2})\.csv$'
+  period_label_fallback: current_month
 
 schedule:
   cron: "0 9 5 * *"

@@ -2,13 +2,90 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: rawlake
-      POSTGRES_PASSWORD: rawlake
-      POSTGRES_DB: rawlake
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PREFECT_DB_NAME: ${PREFECT_DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-prefect-db.sh:/docker-entrypoint-initdb.d/init-prefect-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  prefect-server:
+    build:
+      context: .
+    command: prefect server start --host 0.0.0.0
+    env_file: .env
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${PREFECT_DB_NAME}
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_SERVER_UI_API_URL: ${PREFECT_SERVER_UI_API_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PREFECT_UI_PORT:-4200}:4200"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:4200/api/health', timeout=5)",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
+
+  prefect-deploy:
+    build:
+      context: .
+    working_dir: /app
+    command: sh -c "rawlake flows deploy && prefect deploy --all"
+    env_file: .env
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      # DB_PORT in .env is the port published on the host; inside the network
+      # Postgres always listens on 5432.
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      RAWLAKE_CONFIGS_DIR: /app/configs
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      prefect-worker:
+        condition: service_started
+    restart: "no"
+
+  prefect-worker:
+    build:
+      context: .
+    command: prefect worker start --pool rawlake-worker --type process
+    env_file: .env
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      # DB_PORT in .env is the port published on the host; inside the network
+      # Postgres always listens on 5432.
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      RAWLAKE_CONFIGS_DIR: /app/configs
+      # RAWLAKE_LOCAL_ROOT in .env is the host path bound below; inside the
+      # container the storage root is always /mnt/datalake.
+      RAWLAKE_LOCAL_ROOT: /mnt/datalake
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    volumes:
+      - ${RAWLAKE_LOCAL_ROOT:-./data}:/mnt/datalake
+    restart: unless-stopped
 
 volumes:
   postgres_data:

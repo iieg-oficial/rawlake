@@ -29,7 +29,11 @@ htmlcov/
 
 # Prefect
 .prefect/
+prefect.yaml
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Local storage root when RAWLAKE_LOCAL_ROOT points inside the repo
+/data/

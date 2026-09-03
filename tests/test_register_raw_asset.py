@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import os
 import tempfile
+from datetime import datetime
 
 from rawlake.services.checksum_service import ChecksumService
 from rawlake.services.versioning_service import VersioningService
+from rawlake.storage.base import build_version_path
 
 
 def test_checksum_service_calculates_correctly():
@@ -61,25 +63,19 @@ def test_versioning_service_generates_submission_id():
 
 
 def test_versioning_service_format_timestamp():
-    from datetime import datetime
-
     ts = datetime(2024, 1, 15, 10, 30, 0)
     formatted = VersioningService.format_version_timestamp(ts)
     assert formatted == "2024-01-15T10-30-00"
 
 
 def test_build_version_path():
-    from datetime import datetime
-
-    from rawlake.storage.base import build_version_path
-
     ts = datetime(2024, 1, 15, 10, 30, 0)
     path = build_version_path(
         root="/mnt/datalake",
         dataset_key="test_dataset",
         period_label="2024-01",
         version_timestamp=ts,
-        file_extension="csv",
+        nombre_archivo="original.csv",
     )
 
     assert path == (

@@ -7,6 +7,7 @@ import pytest
 import yaml
 
 from rawlake.core.exceptions import ManifestError
+from rawlake.manifests import loader
 from rawlake.manifests.loader import load_manifest
 from rawlake.schemas.product_manifest import ProductManifest
 
@@ -70,15 +71,11 @@ class TestProductManifestSchema:
 
 class TestLoadManifest:
     def test_load_manifest_not_found(self, monkeypatch):
-        import rawlake.manifests.loader as loader
-
         monkeypatch.setattr(loader, "_PRODUCTS_DIR", Path(tempfile.mkdtemp()))
         with pytest.raises(ManifestError, match="not found"):
             load_manifest("nonexistent")
 
     def test_load_manifest_valid(self, monkeypatch, tmp_path):
-        import rawlake.manifests.loader as loader
-
         monkeypatch.setattr(loader, "_PRODUCTS_DIR", tmp_path)
         data = _minimal_manifest()
         with open(tmp_path / "test_product.yaml", "w") as f:
@@ -88,8 +85,6 @@ class TestLoadManifest:
         assert m.dataset_key == "test_product"
 
     def test_load_manifest_invalid_yaml(self, monkeypatch, tmp_path):
-        import rawlake.manifests.loader as loader
-
         monkeypatch.setattr(loader, "_PRODUCTS_DIR", tmp_path)
         with open(tmp_path / "bad.yaml", "w") as f:
             yaml.dump({"dataset_key": "bad"}, f)

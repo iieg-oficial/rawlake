@@ -111,7 +111,7 @@ class IngestionService:
                 dataset_key=dataset_key,
                 period_label=period_label,
                 version_timestamp=version_timestamp,
-                file_extension=file_ext,
+                nombre_archivo=original_name,
             )
 
             run_id = self._versioning.generate_run_id()
@@ -193,7 +193,7 @@ class IngestionService:
             "created_at": datetime.utcnow().isoformat(),
         }
 
-        metadata_path = str(Path(storage_path).parent / "metadata.json")
+        metadata_path = f"{storage_path}.metadata.json"
         with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
 
