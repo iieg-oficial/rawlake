@@ -10,13 +10,16 @@ COMPOSE_PATH = Path("docker-compose.yml")
 ENV_EXAMPLE_PATH = Path(".env.example")
 VARIABLE_PATTERN = re.compile(r"\$\{([A-Z][A-Z0-9_]*)")
 ENV_ASSIGNMENT_PATTERN = re.compile(r"^\s{6}([A-Z][A-Z0-9_]*):\s*(.+?)\s*$", re.MULTILINE)
+# Keys that carry host configuration or credentials, and must never be written
+# literally in the Compose file. Container-internal constants (mount targets,
+# service hostnames, in-network ports) are deliberately excluded: they are part
+# of the image contract, not of the environment.
 SENSITIVE_KEYS = {
     "POSTGRES_USER",
     "POSTGRES_PASSWORD",
     "POSTGRES_DB",
     "PREFECT_API_DATABASE_CONNECTION_URL",
     "PREFECT_SERVER_UI_API_URL",
-    "RAWLAKE_LOCAL_ROOT",
 }
 
 

@@ -56,3 +56,21 @@ def test_accepts_connection_url_with_interpolated_credentials(tmp_path: Path) ->
     )
 
     assert result.returncode == 0
+
+
+def test_accepts_container_path_pinned_alongside_an_interpolated_bind_mount(
+    tmp_path: Path,
+) -> None:
+    """The mount target inside the container is fixed; only the host side is configurable."""
+    result = run_validator(
+        tmp_path,
+        (
+            "services:\n  worker:\n    environment:\n"
+            "      RAWLAKE_LOCAL_ROOT: /mnt/datalake\n"
+            "    volumes:\n"
+            "      - ${RAWLAKE_LOCAL_ROOT:-./data}:/mnt/datalake\n"
+        ),
+        "RAWLAKE_LOCAL_ROOT=./data\n",
+    )
+
+    assert result.returncode == 0, result.stderr

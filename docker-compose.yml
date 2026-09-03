@@ -77,7 +77,9 @@ services:
       DB_HOST: postgres
       DB_PORT: "5432"
       RAWLAKE_CONFIGS_DIR: /app/configs
-      RAWLAKE_LOCAL_ROOT: ${RAWLAKE_LOCAL_ROOT:-./data}
+      # RAWLAKE_LOCAL_ROOT in .env is the host path bound below; inside the
+      # container the storage root is always /mnt/datalake.
+      RAWLAKE_LOCAL_ROOT: /mnt/datalake
     depends_on:
       prefect-server:
         condition: service_healthy
